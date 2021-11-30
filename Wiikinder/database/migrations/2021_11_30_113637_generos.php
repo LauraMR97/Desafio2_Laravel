@@ -15,7 +15,6 @@ class Generos extends Migration
     {
         Schema::create('generos', function (Blueprint $table) {
             $table->id();
-            $table->foreign('id')->references('id_genero')->on('personas')->onDelete('cascade');
             $table->string('descripcion');
             $table->timestamps();
         });

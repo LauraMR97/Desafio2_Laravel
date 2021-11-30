@@ -17,3 +17,5 @@ use App\Http\Controllers\miControlador;
 
 Route::post('/registroRol', [miControlador::class, 'crearRol']);
 Route::post('/registroGenero', [miControlador::class, 'crearGenero']);
+Route::post('/registroPersona', [miControlador::class, 'crearPersona']);
+Route::post('/registroConjunto', [miControlador::class, 'crearConjunto']);

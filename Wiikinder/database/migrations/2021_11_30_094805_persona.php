@@ -28,7 +28,7 @@ class Persona extends Migration
             $table->unsignedBigInteger('id_genero')->index();
             $table->foreign('id_genero')->references('id')->on('generos')->onDelete('cascade');
             $table->boolean('quiereHijos');
-            $table->boolean('tipoRelaccion');
+            $table->string('tipoRelaccion');
             $table->integer('hijosDeseados');
             $table->timestamps();
         });
