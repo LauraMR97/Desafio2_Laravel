@@ -14,7 +14,7 @@ class GustoGenero extends Migration
     public function up()
     {
         Schema::create('gusto_genero', function (Blueprint $table) {
-            $table->integer('id');
+            $table->unsignedBigInteger('id');
             $table->string('correo');
             $table->primary(['correo', 'id']);
             $table->foreign('id')->references('id')->on('generos')->onDelete('cascade');

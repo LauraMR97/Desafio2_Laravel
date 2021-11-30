@@ -14,7 +14,7 @@ class Rol extends Migration
     public function up()
     {
         Schema::create('rol', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->id();
             $table->string('descripcion');
             $table->timestamps();
         });

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Rol extends Model
 {
     use HasFactory;
-
+    protected $fillable=['descripcion'];
     protected $table = 'rol';
     public function conjunto(){
         return $this->hasMany('App\Models\Conjunto','id','id_rol');
