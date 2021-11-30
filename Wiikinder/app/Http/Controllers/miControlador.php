@@ -37,10 +37,25 @@ class miControlador extends Controller
         return response()->json(['code' => 201, 'message' => 'Datos insertados']);
     }
 
-    public function crearConjunto(Request $val)
-    { Conjunto::create($val->all());
 
+    public function login(Request $val)
+    {
+        $correo=$val->get('correo');
+        $password=$val->get('password');
+        $persona = Persona::find(['correo'=>$correo,'password'=>$password]);
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+        if($persona!=null){
+            return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
+        }
+    }
+
+    public function passOlvidada(Request $val)
+    {
+        $correo=$val->get('correo');
+        $persona = Persona::find($correo);
+
+        if($persona!=null){
+            return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
+        }
     }
 }

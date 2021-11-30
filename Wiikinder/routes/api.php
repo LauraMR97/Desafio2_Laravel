@@ -17,5 +17,13 @@ use App\Http\Controllers\miControlador;
 
 Route::post('/registroRol', [miControlador::class, 'crearRol']);
 Route::post('/registroGenero', [miControlador::class, 'crearGenero']);
+
+//Registro
 Route::post('/registroPersona', [miControlador::class, 'crearPersona']);
-Route::post('/registroConjunto', [miControlador::class, 'crearConjunto']);
+
+//Login
+Route::post('/login', [miControlador::class, 'login']);
+
+//Contraseña Perdida
+Route::post('/passwordOlvidada', [miControlador::class, 'passOlvidada']);
+
