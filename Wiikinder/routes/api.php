@@ -20,10 +20,16 @@ Route::post('/registroGenero', [miControlador::class, 'crearGenero']);
 
 //Registro
 Route::post('/registroPersona', [miControlador::class, 'crearPersona']);
+//Formulario Preferencias
+Route::post('/formulario', [miControlador::class, 'crearPreferencias']);
+
+
 
 //Login
 Route::post('/login', [miControlador::class, 'login']);
 
 //Contraseña Perdida
 Route::post('/passwordOlvidada', [miControlador::class, 'passOlvidada']);
+
+
 
