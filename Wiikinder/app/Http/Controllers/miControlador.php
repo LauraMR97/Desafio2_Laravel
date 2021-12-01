@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Rol;
 use App\Models\Persona;
 use App\Models\Genero;
+use App\Models\GustoGenero;
 use App\Models\Conjunto;
 use App\Models\Diferencia;
 use App\Models\Preferencia;
@@ -46,6 +47,7 @@ class miControlador extends Controller
         unset($val['passRepeat']);
 
         if($val->get('password')==$passRepeat){
+            session()->put($correo,'personaRegistrandose');
             Persona::create(['correo'=>$val->get('correo'),'nombre'=>$val->get('nombre'),'nick'=>$val->get('nick'),'password'=>$val->get('password'),'edad'=>$val->get('edad'),'ciudad'=>$val->get('ciudad'),'descripcion'=>'','tema'=>'claro','foto'=>'./public/ImagenesPerfil','activo'=>'no','conectado'=>'no','id_genero'=>$val->get('id_genero'),'tieneHijos'=>0,'tipoRelaccion'=>'Ninguna','hijosDeseados'=>0]);
             Conjunto::create(['correo'=>$correo,'id_rol'=>$id_rol]);
 
@@ -85,21 +87,31 @@ class miControlador extends Controller
 
     public function crearFormularioPreferencias(Request $val){
 
+        //$personaAfectada=session()->get('personaRegistrandose');
+        $personaAfectada='Paco@gmail.com';
         //del 0 al 100
             $Deportivos=$val->get('deporte');
             $Artisticos=$val->get('arte');
             $Politicos=$val->get('politica');
 
-            PersonaPreferencia::create(['id_preferencia'=>1,'intensidad'=>$Deportivos]);
-            PersonaPreferencia::create(['id_preferencia'=>2,'intensidad'=>$Artisticos]);
-            PersonaPreferencia::create(['id_preferencia'=>3,'intensidad'=>$Politicos]);
+            PersonaPreferencia::create(['correo'=>$personaAfectada,'id_preferencia'=>1,'intensidad'=>$Deportivos]);
+            PersonaPreferencia::create(['correo'=>$personaAfectada,'id_preferencia'=>2,'intensidad'=>$Artisticos]);
+            PersonaPreferencia::create(['correo'=>$personaAfectada,'id_preferencia'=>3,'intensidad'=>$Politicos]);
+
+
         //Otros Caracteres
             $tipoRelaccion=$val->get('tipoRelaccion');
             $tieneHijos=$val->get('numHijos');
             $quiereHijos=$val->get('quiereHijos');
             $interesDeGenero=$val->get('generoPreferido');
+            $descripcion=$val->get('descripcion');
 
 
+            $persona = Persona::find($personaAfectada);
+            GustoGenero::created(['id'=>$interesDeGenero,'correo'=>$personaAfectada]);
+            $persona->update(['descripcion'=>$descripcion,'tieneHijos'=>$tieneHijos,'tipoRelaccion'=>$tipoRelaccion,'hijosDeswados'=>$quiereHijos]);
+
+            return response()->json($persona, 200);
 
     }
 

@@ -10,7 +10,7 @@ class PersonaPreferencia extends Model
     use HasFactory;
 
     protected $fillable=['correo','id_preferencia','intensidad'];
-    protected $table = 'preferencias';
+    protected $table = 'preferencias_persona';
 
 
     public function preferencia(){
