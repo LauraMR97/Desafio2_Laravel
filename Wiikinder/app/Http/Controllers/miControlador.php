@@ -115,4 +115,8 @@ class miControlador extends Controller
 
     }
 
+    public function mostrarCrudAdmin(){
+        return Persona::all();
+    }
+
 }
