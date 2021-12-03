@@ -32,6 +32,10 @@ Route::post('/passwordOlvidada', [miControlador::class, 'passOlvidada']);
 Route::post('/registroPreferencia', [miControlador::class, 'crearPreferencia']);
 Route::post('/formularioPreferencias', [miControlador::class, 'crearFormularioPreferencias']);
 
+//Mostrar Preferencias
+Route::get('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']);
+
+//Personas Conectadas
 
 //Crud Administrador
 Route::get('/crudAdmin', [miControlador::class, 'mostrarCrudAdmin']);
