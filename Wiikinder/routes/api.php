@@ -33,3 +33,6 @@ Route::post('/registroPreferencia', [miControlador::class, 'crearPreferencia']);
 Route::post('/formularioPreferencias', [miControlador::class, 'crearFormularioPreferencias']);
 
 
+//Crud Administrador
+Route::get('/crudAdmin', [miControlador::class, 'mostrarCrudAdmin']);
+

@@ -14,6 +14,12 @@ use App\Models\PersonaPreferencia;
 
 class miControlador extends Controller
 {
+    /**
+     * Permite crear un rol nuevo
+     *
+     * @param Request $val
+     * @return void
+     */
     public function crearRol(Request $val)
     {
 
@@ -22,6 +28,12 @@ class miControlador extends Controller
         return response()->json(['code' => 201, 'message' => 'Datos insertados']);
     }
 
+    /**
+     * Permite crear una preferencia
+     *
+     * @param Request $val
+     * @return void
+     */
     public function crearPreferencia(Request $val)
     {
         Preferencia::create($val->all());
@@ -29,6 +41,12 @@ class miControlador extends Controller
         return response()->json(['code' => 201, 'message' => 'Datos insertados']);
     }
 
+    /**
+     * Permite crear un genero
+     *
+     * @param Request $val
+     * @return void
+     */
     public function crearGenero(Request $val)
     {
 
@@ -37,6 +55,12 @@ class miControlador extends Controller
         return response()->json(['code' => 201, 'message' => 'Datos insertados']);
     }
 
+    /**
+     * Permite crear una persona y añadirla a un conjunto junto a su rol
+     *
+     * @param Request $val
+     * @return void
+     */
     public function crearPersona(Request $val)
     {
         //return response($val);
@@ -59,20 +83,38 @@ class miControlador extends Controller
     }
 
 
+    /**
+     * Permite logearse a una persona
+     *
+     * @param Request $val
+     * @return void
+     */
     public function login(Request $val)
     {
         $correo=$val->get('correo');
         $password=$val->get('password');
         $persona = Persona::find(['correo'=>$correo,'password'=>$password]);
+        $conectado='si';
 
         if($persona!=null){
             session()->put('persona',$persona);
+
+            Persona::where('correo', $correo)
+            ->update(['conectado' => $conectado]);
+
             return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
         }else{
             return response()->json(['code' => 401, 'message' => 'Login incorrecto']);
         }
     }
 
+    /**
+     * Permite comprobar si un correo existe en la base de datos, despues enviar
+     * un email a la persona con su nueva contraseña
+     *
+     * @param Request $val
+     * @return void
+     */
     public function passOlvidada(Request $val)
     {
         $correo=$val->get('correo');
@@ -84,6 +126,11 @@ class miControlador extends Controller
             return response()->json(['code' => 401, 'message' => 'correo no registrado']);
         }
     }
+
+    /**
+     * Permite añadir a una base de datos las preferencias del nuevo usuario y editar alguna
+     * informacion del usuario nuevo con sus preferencias
+     */
 
     public function crearFormularioPreferencias(Request $val){
 
@@ -108,11 +155,20 @@ class miControlador extends Controller
 
 
             $persona = Persona::find($personaAfectada);
-            GustoGenero::created(['id'=>$interesDeGenero,'correo'=>$personaAfectada]);
-            $persona->update(['descripcion'=>$descripcion,'tieneHijos'=>$tieneHijos,'tipoRelaccion'=>$tipoRelaccion,'hijosDeswados'=>$quiereHijos]);
+            GustoGenero::create(['id'=>$interesDeGenero,'correo'=>$personaAfectada]);
+            $persona->update(['descripcion'=>$descripcion,'tieneHijos'=>$tieneHijos,'tipoRelaccion'=>$tipoRelaccion,'hijosDeseados'=>$quiereHijos]);
 
             return response()->json($persona, 200);
 
+    }
+
+    /**
+     * Permite mostrar todos los usuarios de la base de datos
+     *
+     * @return void
+     */
+    public function mostrarCrudAdmin(){
+        return Persona::all();
     }
 
 }
