@@ -255,5 +255,13 @@ class miControlador extends Controller
     {
         return Persona::all();
     }
+
+
+
+    public function mostrarPreferencias(){
+     $personaLogeada= session()->get('personaRegistrandose');
+
+        return Diferencia::orderBy('diferencia','ASC')->where(['correo1'=> $personaLogeada])->get();
+    }
 }
 
