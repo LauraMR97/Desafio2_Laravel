@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Preferencia extends Model
 {
     use HasFactory;
+    protected $fillable=['descripcion'];
+    protected $table = 'preferencias';
 }

@@ -15,6 +15,7 @@ use App\Http\Controllers\miControlador;
 |
 */
 
+
 Route::post('/registroRol', [miControlador::class, 'crearRol']);
 Route::post('/registroGenero', [miControlador::class, 'crearGenero']);
 
@@ -26,4 +27,12 @@ Route::post('/login', [miControlador::class, 'login']);
 
 //Contraseña Perdida
 Route::post('/passwordOlvidada', [miControlador::class, 'passOlvidada']);
+
+//Crear Formulario o crear Preferencias
+Route::post('/registroPreferencia', [miControlador::class, 'crearPreferencia']);
+Route::post('/formularioPreferencias', [miControlador::class, 'crearFormularioPreferencias']);
+
+
+//Crud Administrador
+Route::get('/crudAdmin', [miControlador::class, 'mostrarCrudAdmin']);
 
