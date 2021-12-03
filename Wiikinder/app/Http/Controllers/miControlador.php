@@ -94,9 +94,14 @@ class miControlador extends Controller
         $correo=$val->get('correo');
         $password=$val->get('password');
         $persona = Persona::find(['correo'=>$correo,'password'=>$password]);
+        $conectado='si';
 
         if($persona!=null){
             session()->put('persona',$persona);
+
+            Persona::where('correo', $correo)
+            ->update(['conectado' => $conectado]);
+
             return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
         }else{
             return response()->json(['code' => 401, 'message' => 'Login incorrecto']);
@@ -151,7 +156,7 @@ class miControlador extends Controller
 
             $persona = Persona::find($personaAfectada);
             GustoGenero::create(['id'=>$interesDeGenero,'correo'=>$personaAfectada]);
-            $persona->update(['descripcion'=>$descripcion,'tieneHijos'=>$tieneHijos,'tipoRelaccion'=>$tipoRelaccion,'hijosDeswados'=>$quiereHijos]);
+            $persona->update(['descripcion'=>$descripcion,'tieneHijos'=>$tieneHijos,'tipoRelaccion'=>$tipoRelaccion,'hijosDeseados'=>$quiereHijos]);
 
             return response()->json($persona, 200);
 
