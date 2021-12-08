@@ -93,10 +93,11 @@ class miControlador extends Controller
     {
         $correo = $val->get('correo');
         $password = $val->get('password');
-        $persona = Persona::find(['correo' => $correo, 'password' => $password]);
+        $persona=Persona::where('correo','=',$correo)->where('password','=',$password)->first();
         $conectado = 'si';
 
-        if ($persona != null) {
+        if ($persona) {
+
             session()->put('persona', $persona);
 
             Persona::where('correo', $correo)
