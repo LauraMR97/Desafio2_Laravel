@@ -78,6 +78,14 @@ return [
                 'log',
             ],
         ],
+
+        'stream'=>[
+            'ssl'=>[
+                'allow_self_signed'=>true,
+                'very_peer'=> false,
+                'verify_peer_name'=>false,
+            ],
+        ],
     ],
 
     /*
