@@ -17,8 +17,8 @@ class GustoGenero extends Migration
             $table->unsignedBigInteger('id');
             $table->string('correo');
             $table->primary(['correo', 'id']);
-            $table->foreign('id')->references('id')->on('generos')->onDelete('cascade');
-            $table->foreign('correo')->references('correo')->on('personas')->onDelete('cascade');
+            $table->foreign('id')->references('id')->on('generos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('correo')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
