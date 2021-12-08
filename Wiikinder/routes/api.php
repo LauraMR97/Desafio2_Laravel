@@ -40,3 +40,7 @@ Route::get('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']
 //Crud Administrador
 Route::get('/crudAdmin', [miControlador::class, 'mostrarCrudAdmin']);
 
+//Perfiles de Usuario
+Route::get('/miPerfil', [miControlador::class, 'verMiPerfil']);
+Route::post('/modificarPerfil', [miControlador::class, 'modificarMiPerfil']);
+Route::post('/borrarPerfil', [miControlador::class, 'borrarMiCuenta']);

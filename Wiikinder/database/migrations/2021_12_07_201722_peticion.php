@@ -17,8 +17,8 @@ class Peticion extends Migration
             $table->string('correo_origen');
             $table->string('correo_destino');
             $table->primary(['correo_origen', 'correo_destino']);
-            $table->foreign('correo_origen')->references('correo')->on('personas')->onDelete('cascade');
-            $table->foreign('correo_destino')->references('correo')->on('personas')->onDelete('cascade');
+            $table->foreign('correo_origen')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('correo_destino')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

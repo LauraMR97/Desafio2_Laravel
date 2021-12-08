@@ -17,8 +17,8 @@ class Conjunto extends Migration
             $table->string('correo');
             $table->unsignedBigInteger('id_rol');
             $table->primary(['correo', 'id_rol']);
-            $table->foreign('correo')->references('correo')->on('personas')->onDelete('cascade');
-            $table->foreign('id_rol')->references('id')->on('rol')->onDelete('cascade');
+            $table->foreign('correo')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('id_rol')->references('id')->on('rol')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

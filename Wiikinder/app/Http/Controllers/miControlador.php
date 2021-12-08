@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Mail;
 use Illuminate\Http\Request;
 use App\Models\Rol;
 use App\Models\Persona;
@@ -119,7 +120,17 @@ class miControlador extends Controller
         $correo = $val->get('correo');
         $persona = Persona::find($correo);
 
+        $datos = [
+            'correo' => $correo
+        ];
+
         if ($persona != null) {
+
+            /*Mail::send('welcome', $datos, function($message) use ($correo)
+            {
+                $message->to($correo)->subject('Envio');
+                $message->from('AuxiliarDAW2@gmail.com', 'Envio');
+            });*/
             return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
         } else {
             return response()->json(['code' => 401, 'message' => 'correo no registrado']);
@@ -163,7 +174,7 @@ class miControlador extends Controller
         //Solo pillo a las personas que por genero le molan a la persona que se esta
         //creando excepto la que se esta creando
         $personas = '';
-        $diferencia=0;
+        $diferencia = 0;
 
         if ($interesDeGenero == 1 || $interesDeGenero == 2) {
             $personas = Persona::where('id_genero', $interesDeGenero)->get();
@@ -180,59 +191,59 @@ class miControlador extends Controller
                 //Gustos Deporte
                 if ($preferencia->id_preferencia == 1) {
                     if ($Deportivos > $preferencia->intensidad) {
-                        $diferencia = $diferencia+ $Deportivos - $preferencia->intensidad;
+                        $diferencia = $diferencia + $Deportivos - $preferencia->intensidad;
                     } else {
-                        $diferencia = $diferencia+ $preferencia->intensidad - $Deportivos;
+                        $diferencia = $diferencia + $preferencia->intensidad - $Deportivos;
                     }
                 }
 
                 //Gustos Arte
                 if ($preferencia->id_preferencia == 2) {
                     if ($Artisticos > $preferencia->intensidad) {
-                        $diferencia = $diferencia+ $Artisticos - $preferencia->intensidad;
+                        $diferencia = $diferencia + $Artisticos - $preferencia->intensidad;
                     } else {
-                        $diferencia = $diferencia+ $preferencia->intensidad - $Artisticos;
+                        $diferencia = $diferencia + $preferencia->intensidad - $Artisticos;
                     }
                 }
 
                 //Gustos Politica
                 if ($preferencia->id_preferencia == 3) {
                     if ($Politicos > $preferencia->intensidad) {
-                        $diferencia = $diferencia+ $Politicos - $preferencia->intensidad;
+                        $diferencia = $diferencia + $Politicos - $preferencia->intensidad;
                     } else {
-                        $diferencia = $diferencia+ $preferencia->intensidad - $Politicos;
+                        $diferencia = $diferencia + $preferencia->intensidad - $Politicos;
                     }
                 }
             }
 
             //Tipo de relaccion. vale x100
 
-            if($tipoRelaccion==$per->tipoRelaccion){
-                $diferencia =$diferencia+100;
-            }else{
-                $diferencia=$diferencia-100;
+            if ($tipoRelaccion == $per->tipoRelaccion) {
+                $diferencia = $diferencia + 100;
+            } else {
+                $diferencia = $diferencia - 100;
             }
 
 
             //Hijos
             //Si la persona registrandose tiene hijos y la otra persona los quiere +100
             //Si es al reves +100
-            if($tieneHijos==1 && $per->hijosDeseados>0 || $per->tieneHijos==1 && $quiereHijos){
-                $diferencia=$diferencia+100;
-            }else{
+            if ($tieneHijos == 1 && $per->hijosDeseados > 0 || $per->tieneHijos == 1 && $quiereHijos) {
+                $diferencia = $diferencia + 100;
+            } else {
                 //SI la persona registrandose no quiere hijos y la otra tampoco +100
-                if($quiereHijos==0 && $per->hijosDeseados==0){
-                    $diferencia=$diferencia+100;
-                }else{
+                if ($quiereHijos == 0 && $per->hijosDeseados == 0) {
+                    $diferencia = $diferencia + 100;
+                } else {
                     //Si la persona registrandose quiere hijos y la otra tambien
-                    if($quiereHijos==1 && $per->hijosDeseados>0){
-                        $diferencia=$diferencia+100;
-                    }else{
+                    if ($quiereHijos == 1 && $per->hijosDeseados > 0) {
+                        $diferencia = $diferencia + 100;
+                    } else {
                         //Si la persona registrada tiene hijos pero no quiere mas y la otra persona no tiene pero si quiere o viceversa +100
-                        if($tieneHijos==1 && $quiereHijos==0 && $per->tieneHijos==0 && $per->hijosDeseados>0 || $tieneHijos==0 && $quiereHijos>0 && $per->tieneHijos==1 && $per->hijosDeseados==0){
-                            $diferencia=$diferencia+100;
-                        }else{
-                            $diferencia=$diferencia-100;
+                        if ($tieneHijos == 1 && $quiereHijos == 0 && $per->tieneHijos == 0 && $per->hijosDeseados > 0 || $tieneHijos == 0 && $quiereHijos > 0 && $per->tieneHijos == 1 && $per->hijosDeseados == 0) {
+                            $diferencia = $diferencia + 100;
+                        } else {
+                            $diferencia = $diferencia - 100;
                         }
                     }
                 }
@@ -240,7 +251,7 @@ class miControlador extends Controller
 
             //Genero-> Como yo ya filtre por gusto de genero mas arriba, me aseguro de que si o si se gustan por lo tanto, no lo voy a contabilizar
             //Añado todo a la tabla Diferencia
-            Diferencia::create(['correo1'=>$personaAfectada,'correo2'=>$per->correo,'diferencia'=>$diferencia]);
+            Diferencia::create(['correo1' => $personaAfectada, 'correo2' => $per->correo, 'diferencia' => $diferencia]);
         }
         return response()->json($persona, 200);
     }
@@ -258,10 +269,47 @@ class miControlador extends Controller
 
 
 
-    public function mostrarPreferencias(){
-     $personaLogeada= session()->get('personaRegistrandose');
+    public function mostrarPreferencias()
+    {
+        $personaLogeada = session()->get('personaRegistrandose');
 
-        return Diferencia::orderBy('diferencia','ASC')->where(['correo1'=> $personaLogeada])->get();
+        return Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $personaLogeada])->get();
     }
-}
 
+
+    public function verMiPerfil()
+    {
+        $persona = session()->get('persona');
+
+        return $persona;
+    }
+
+
+    public function modificarMiPerfil(Request $val)
+    {
+        $password1 = $val->get('password1');
+        $password2 = $val->get('password2');
+
+        if ($password1 == $password2) {
+            //$personaAntigua = session()->get('persona');
+            //$correoAntiguo = $personaAntigua->correo;
+            $correoAntiguo='Lola@gmail.com';
+            $correo = $val->get('correo');
+            $nick = $val->get('nick');
+            $nombre = $val->get('nombre');
+            $descripcion = $val->get('descripcion');
+            $ciudad = $val->get('ciudad');
+
+            Persona::where('correo',$correoAntiguo)->update(['correo'=>$correo,'nick'=>$nick,'nombre'=>$nombre,'descripcion'=>$descripcion,'ciudad'=>$ciudad]);
+        } else {
+            return response()->json(['code' => 401, 'message' => 'Las contraseñas son distintas']);
+        }
+    }
+
+    public function borrarMiCuenta(Request $val){
+        $correo=$val->get('correo');
+        $persona = Persona::find($correo);
+        $persona->delete();
+    }
+
+}
