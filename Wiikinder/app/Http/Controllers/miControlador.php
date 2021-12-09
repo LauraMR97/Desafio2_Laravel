@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Mail;
+
 use Illuminate\Http\Request;
 use App\Models\Rol;
 use App\Models\Persona;
@@ -26,7 +26,10 @@ class miControlador extends Controller
 
         Rol::create($val->all());
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+
+        return response()->json([
+            'message' => 'Rol creado'
+        ], 201);
     }
 
     /**
@@ -39,7 +42,9 @@ class miControlador extends Controller
     {
         Preferencia::create($val->all());
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+        return response()->json([
+            'message' => 'Preferencia creada'
+        ], 201);
     }
 
     /**
@@ -53,7 +58,9 @@ class miControlador extends Controller
 
         Genero::create($val->all());
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+        return response()->json([
+            'message' => 'Genero creado'
+        ], 201);
     }
 
     /**
@@ -76,9 +83,14 @@ class miControlador extends Controller
             session()->put($correo, 'personaRegistrandose');
             Persona::create(['correo' => $val->get('correo'), 'nombre' => $val->get('nombre'), 'nick' => $val->get('nick'), 'password' => $val->get('password'), 'edad' => $val->get('edad'), 'ciudad' => $val->get('ciudad'), 'descripcion' => '', 'tema' => 'claro', 'foto' => './public/ImagenesPerfil', 'activo' => 'no', 'conectado' => 'no', 'id_genero' => $val->get('id_genero'), 'tieneHijos' => 0, 'tipoRelaccion' => 'Ninguna', 'hijosDeseados' => 0]);
             Conjunto::create(['correo' => $correo, 'id_rol' => $id_rol]);
-            return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+
+            return response()->json([
+                'message' => 'Datos insertados'
+            ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'Las contraseñas son distintas']);
+            return response()->json([
+                'message' => 'Las contraseñas son distintas'
+            ], 401);
         }
     }
 
@@ -97,15 +109,21 @@ class miControlador extends Controller
         $conectado = 'si';
 
         if ($persona) {
+            $rol=Conjunto::where('correo','=',$correo)->get();
 
+            return response($rol);
             session()->put('persona', $persona);
 
             Persona::where('correo', $correo)
                 ->update(['conectado' => $conectado]);
 
-            return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
+                return response()->json([
+                    'message' => 'Datos encontrados'
+                ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'Login incorrecto']);
+            return response()->json([
+                'message' => 'Datos no encontrados'
+            ], 401);
         }
     }
 
@@ -132,9 +150,13 @@ class miControlador extends Controller
                 $message->to($correo)->subject('Envio');
                 $message->from('AuxiliarDAW2@gmail.com', 'Envio');
             });*/
-            return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
+            return response()->json([
+                'message' => 'Datos encontrados'
+            ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'correo no registrado']);
+            return response()->json([
+                'message' => 'Correo no registrado'
+            ], 401);
         }
     }
 
@@ -254,6 +276,9 @@ class miControlador extends Controller
             //Añado todo a la tabla Diferencia
             Diferencia::create(['correo1' => $personaAfectada, 'correo2' => $per->correo, 'diferencia' => $diferencia]);
         }
+
+
+
         return response()->json($persona, 200);
     }
 
@@ -302,8 +327,14 @@ class miControlador extends Controller
             $ciudad = $val->get('ciudad');
 
             Persona::where('correo',$correoAntiguo)->update(['correo'=>$correo,'nick'=>$nick,'nombre'=>$nombre,'descripcion'=>$descripcion,'ciudad'=>$ciudad]);
+            return response()->json([
+                'message' => 'Perfil Modificado'
+            ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'Las contraseñas son distintas']);
+
+        return response()->json([
+            'message' => 'Las contraseñas son distintas'
+        ], 401);
         }
     }
 
