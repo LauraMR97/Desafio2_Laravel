@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use App\Models\Rol;
 use App\Models\Persona;
@@ -76,7 +76,6 @@ class miControlador extends Controller
         $correo = $val->get('correo');
         $id_rol = 2;
         $passRepeat = $val->get('passRepeat');
-        $diferencia = 0;
         unset($val['passRepeat']);
 
         if ($val->get('password') == $passRepeat) {
@@ -145,7 +144,11 @@ class miControlador extends Controller
 
         if ($persona != null) {
 
-            /*Mail::to($correo)->send('hola');*/
+            Mail::send('welcome', $datos, function($message) use ($correo)
+            {
+                $message->to($correo)->subject('Ejemplo de envío');
+                $message->from('auxiliardaw@gmail.com', 'Esto es un ejemplo de envío de correo electronico');
+            });
 
             return response()->json([
                 'message' => 'Datos encontrados'
