@@ -111,8 +111,8 @@ class miControlador extends Controller
         if ($persona) {
             $rol=Conjunto::where('correo','=',$correo)->get();
 
-            return response($rol);
             session()->put('persona', $persona);
+            session()->put('correo', $persona->correo);
 
             Persona::where('correo', $correo)
                 ->update(['conectado' => $conectado]);
@@ -145,11 +145,8 @@ class miControlador extends Controller
 
         if ($persona != null) {
 
-            /*Mail::send('welcome', $datos, function($message) use ($correo)
-            {
-                $message->to($correo)->subject('Envio');
-                $message->from('AuxiliarDAW2@gmail.com', 'Envio');
-            });*/
+            /*Mail::to($correo)->send('hola');*/
+
             return response()->json([
                 'message' => 'Datos encontrados'
             ], 201);
@@ -295,18 +292,16 @@ class miControlador extends Controller
 
 
 
-    public function mostrarPreferencias()
+    public function mostrarPreferencias(Request $req)
     {
-        $personaLogeada = session()->get('personaRegistrandose');
-
-        return Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $personaLogeada])->get();
+        $correo = $req('correo');
+        return Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $correo])->orWhere(['correo2' => $correo])->get();
     }
 
 
     public function verMiPerfil()
     {
         $persona = session()->get('persona');
-
         return $persona;
     }
 
