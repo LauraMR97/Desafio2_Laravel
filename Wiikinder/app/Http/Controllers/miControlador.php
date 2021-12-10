@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Mail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use App\Models\Rol;
 use App\Models\Persona;
@@ -12,6 +12,7 @@ use App\Models\Conjunto;
 use App\Models\Diferencia;
 use App\Models\Preferencia;
 use App\Models\PersonaPreferencia;
+use Illuminate\Support\Arr;
 
 class miControlador extends Controller
 {
@@ -26,7 +27,10 @@ class miControlador extends Controller
 
         Rol::create($val->all());
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+
+        return response()->json([
+            'message' => 'Rol creado'
+        ], 201);
     }
 
     /**
@@ -39,7 +43,9 @@ class miControlador extends Controller
     {
         Preferencia::create($val->all());
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+        return response()->json([
+            'message' => 'Preferencia creada'
+        ], 201);
     }
 
     /**
@@ -53,7 +59,9 @@ class miControlador extends Controller
 
         Genero::create($val->all());
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+        return response()->json([
+            'message' => 'Genero creado'
+        ], 201);
     }
 
     /**
@@ -69,16 +77,20 @@ class miControlador extends Controller
         $correo = $val->get('correo');
         $id_rol = 2;
         $passRepeat = $val->get('passRepeat');
-        $diferencia = 0;
         unset($val['passRepeat']);
 
         if ($val->get('password') == $passRepeat) {
             session()->put($correo, 'personaRegistrandose');
             Persona::create(['correo' => $val->get('correo'), 'nombre' => $val->get('nombre'), 'nick' => $val->get('nick'), 'password' => $val->get('password'), 'edad' => $val->get('edad'), 'ciudad' => $val->get('ciudad'), 'descripcion' => '', 'tema' => 'claro', 'foto' => './public/ImagenesPerfil', 'activo' => 'no', 'conectado' => 'no', 'id_genero' => $val->get('id_genero'), 'tieneHijos' => 0, 'tipoRelaccion' => 'Ninguna', 'hijosDeseados' => 0]);
             Conjunto::create(['correo' => $correo, 'id_rol' => $id_rol]);
-            return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+
+            return response()->json([
+                'message' => 'Datos insertados'
+            ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'Las contraseñas son distintas']);
+            return response()->json([
+                'message' => 'Las contraseñas son distintas'
+            ], 401);
         }
     }
 
@@ -97,15 +109,21 @@ class miControlador extends Controller
         $conectado = 'si';
 
         if ($persona) {
+            $rol=Conjunto::where('correo','=',$correo)->get();
 
             session()->put('persona', $persona);
+            session()->put('correo', $persona->correo);
 
             Persona::where('correo', $correo)
                 ->update(['conectado' => $conectado]);
 
-            return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
+                return response()->json([
+                    'message' => 'Datos encontrados'
+                ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'Login incorrecto']);
+            return response()->json([
+                'message' => 'Datos no encontrados'
+            ], 401);
         }
     }
 
@@ -118,6 +136,17 @@ class miControlador extends Controller
      */
     public function passOlvidada(Request $val)
     {
+        $datos = [
+            'nombreUsuario' => 'Laura',
+            'email' => 'lauramorenoramos97@gmail.com'
+        ];
+        $correo ='lauramorenoramos97@gmail.com';
+        Mail::send('welcome', $datos, function($message) use ($correo)
+            {
+                $message->to($correo)->subject('Ejemplo de envío');
+                $message->from('AuxiliarDAW2@gmail.com', 'Esto es un ejemplo de envío de correo electronico');
+            });
+
         $correo = $val->get('correo');
         $persona = Persona::find($correo);
 
@@ -127,14 +156,19 @@ class miControlador extends Controller
 
         if ($persona != null) {
 
-            /*Mail::send('welcome', $datos, function($message) use ($correo)
+            Mail::send('welcome', $datos, function($message) use ($correo)
             {
-                $message->to($correo)->subject('Envio');
-                $message->from('AuxiliarDAW2@gmail.com', 'Envio');
-            });*/
-            return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
+                $message->to($correo)->subject('Ejemplo de envío');
+                $message->from('auxiliardaw2@gmail.com', 'Esto es un ejemplo de envío de correo electronico');
+            });
+
+            return response()->json([
+                'message' => 'Datos encontrados'
+            ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'correo no registrado']);
+            return response()->json([
+                'message' => 'Correo no registrado'
+            ], 401);
         }
     }
 
@@ -146,8 +180,7 @@ class miControlador extends Controller
     public function crearFormularioPreferencias(Request $val)
     {
 
-        //$personaAfectada=session()->get('personaRegistrandose');
-        $personaAfectada = 'Esther@gmail.com';
+        $personaAfectada=$val->get('correo');
 
         //del 0 al 100
         $Deportivos = $val->get('deporte');
@@ -254,6 +287,9 @@ class miControlador extends Controller
             //Añado todo a la tabla Diferencia
             Diferencia::create(['correo1' => $personaAfectada, 'correo2' => $per->correo, 'diferencia' => $diferencia]);
         }
+
+
+
         return response()->json($persona, 200);
     }
 
@@ -270,18 +306,30 @@ class miControlador extends Controller
 
 
 
-    public function mostrarPreferencias()
+    public function mostrarPreferencias(Request $val)
     {
-        $personaLogeada = session()->get('personaRegistrandose');
-
-        return Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $personaLogeada])->get();
+        $correo = $val->get('correo');
+        $personas= array();
+        $gustoGenero=GustoGenero::where('correo','=',$correo)->first();
+        $diferencia= Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $correo])->orWhere(['correo2' => $correo])->get();
+        foreach ($diferencia as $d) {
+           foreach(Persona::where('correo','=',$d->correo1)->where('correo','!=',$correo)->orWhere('correo','=',$d->correo2)->where('correo','!=',$correo)->get() as $p){
+            if($p->id_genero==$gustoGenero->id){
+                $personas[]=$p;
+            }
+            if($gustoGenero->id==3){
+                $personas[]=$p;
+            }
+           }
+        }
+        return response($personas);
     }
 
 
-    public function verMiPerfil()
+    public function verMiPerfil(Request $val)
     {
-        $persona = session()->get('persona');
-
+        $correo= $val->get('correo');
+       $persona= Persona::where('correo',$correo)->get();
         return $persona;
     }
 
@@ -302,8 +350,14 @@ class miControlador extends Controller
             $ciudad = $val->get('ciudad');
 
             Persona::where('correo',$correoAntiguo)->update(['correo'=>$correo,'nick'=>$nick,'nombre'=>$nombre,'descripcion'=>$descripcion,'ciudad'=>$ciudad]);
+            return response()->json([
+                'message' => 'Perfil Modificado'
+            ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'Las contraseñas son distintas']);
+
+        return response()->json([
+            'message' => 'Las contraseñas son distintas'
+        ], 401);
         }
     }
 
