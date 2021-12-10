@@ -317,6 +317,9 @@ class miControlador extends Controller
             if($p->id_genero==$gustoGenero->id){
                 $personas[]=$p;
             }
+            if($gustoGenero->id==3){
+                $personas[]=$p;
+            }
            }
         }
         return response($personas);
