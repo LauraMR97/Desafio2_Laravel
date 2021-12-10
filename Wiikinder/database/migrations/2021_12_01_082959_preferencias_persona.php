@@ -17,8 +17,8 @@ class PreferenciasPersona extends Migration
             $table->string('correo');
             $table->unsignedBigInteger('id_preferencia');
             $table->primary(['correo', 'id_preferencia']);
-            $table->foreign('id_preferencia')->references('id')->on('preferencias')->onDelete('cascade');
-            $table->foreign('correo')->references('correo')->on('personas')->onDelete('cascade');
+            $table->foreign('id_preferencia')->references('id')->on('preferencias')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('correo')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
             $table->integer('intensidad');
             $table->timestamps();
         });
