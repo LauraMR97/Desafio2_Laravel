@@ -33,7 +33,7 @@ Route::post('/registroPreferencia', [miControlador::class, 'crearPreferencia']);
 Route::post('/formularioPreferencias', [miControlador::class, 'crearFormularioPreferencias']);
 
 //Mostrar Preferencias
-Route::get('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']);
+Route::any('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']);
 
 //Personas Conectadas
 

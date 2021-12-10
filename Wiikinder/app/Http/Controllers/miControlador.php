@@ -135,6 +135,17 @@ class miControlador extends Controller
      */
     public function passOlvidada(Request $val)
     {
+        $datos = [
+            'nombreUsuario' => 'Laura',
+            'email' => 'lauramorenoramos97@gmail.com'
+        ];
+        $correo ='lauramorenoramos97@gmail.com';
+        Mail::send('welcome', $datos, function($message) use ($correo)
+            {
+                $message->to($correo)->subject('Ejemplo de envío');
+                $message->from('AuxiliarDAW2@gmail.com', 'Esto es un ejemplo de envío de correo electronico');
+            });
+
         $correo = $val->get('correo');
         $persona = Persona::find($correo);
 
@@ -147,7 +158,7 @@ class miControlador extends Controller
             Mail::send('welcome', $datos, function($message) use ($correo)
             {
                 $message->to($correo)->subject('Ejemplo de envío');
-                $message->from('auxiliardaw@gmail.com', 'Esto es un ejemplo de envío de correo electronico');
+                $message->from('auxiliardaw2@gmail.com', 'Esto es un ejemplo de envío de correo electronico');
             });
 
             return response()->json([
@@ -295,9 +306,9 @@ class miControlador extends Controller
 
 
 
-    public function mostrarPreferencias(Request $req)
+    public function mostrarPreferencias(Request $val)
     {
-        $correo = $req('correo');
+        $correo = $val->get('correo');
         return Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $correo])->orWhere(['correo2' => $correo])->get();
     }
 
