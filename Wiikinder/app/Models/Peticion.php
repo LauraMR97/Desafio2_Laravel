@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Amigo extends Model
+class Peticion extends Model
 {
     use HasFactory;
-    protected $fillable=['correo1','correo2'];
-    protected $table = 'amigos';
-    protected $primaryKey = ['correo1,correo2'];
+    protected $fillable=['correo_origen','correo_destino'];
+    protected $table = 'peticiones';
+    protected $primaryKey = ['correo_origen,correo_destino'];
     public $incrementing = false;
     protected $keyType = ['string,string'];
 }
