@@ -12,6 +12,7 @@ use App\Models\Conjunto;
 use App\Models\Diferencia;
 use App\Models\Preferencia;
 use App\Models\PersonaPreferencia;
+use Illuminate\Support\Arr;
 
 class miControlador extends Controller
 {
@@ -179,8 +180,7 @@ class miControlador extends Controller
     public function crearFormularioPreferencias(Request $val)
     {
 
-        //$personaAfectada=session()->get('personaRegistrandose');
-        $personaAfectada = 'Esther@gmail.com';
+        $personaAfectada=$val->get('correo');
 
         //del 0 al 100
         $Deportivos = $val->get('deporte');
@@ -309,7 +309,17 @@ class miControlador extends Controller
     public function mostrarPreferencias(Request $val)
     {
         $correo = $val->get('correo');
-        return Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $correo])->orWhere(['correo2' => $correo])->get();
+        $personas= array();
+        $gustoGenero=GustoGenero::where('correo','=',$correo)->first();
+        $diferencia= Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $correo])->orWhere(['correo2' => $correo])->get();
+        foreach ($diferencia as $d) {
+           foreach(Persona::where('correo','=',$d->correo1)->where('correo','!=',$correo)->orWhere('correo','=',$d->correo2)->where('correo','!=',$correo)->get() as $p){
+            if($p->id_genero==$gustoGenero->id){
+                $personas[]=$p;
+            }
+           }
+        }
+        return response($personas);
     }
 
 
