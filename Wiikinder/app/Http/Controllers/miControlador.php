@@ -326,9 +326,10 @@ class miControlador extends Controller
     }
 
 
-    public function verMiPerfil()
+    public function verMiPerfil(Request $val)
     {
-        $persona = session()->get('persona');
+        $correo= $val->get('correo');
+       $persona= Persona::where('correo',$correo)->get();
         return $persona;
     }
 

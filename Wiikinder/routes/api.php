@@ -41,6 +41,6 @@ Route::any('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']
 Route::get('/crudAdmin', [miControlador::class, 'mostrarCrudAdmin']);
 
 //Perfiles de Usuario
-Route::get('/miPerfil', [miControlador::class, 'verMiPerfil']);
+Route::any('/miPerfil', [miControlador::class, 'verMiPerfil']);
 Route::post('/modificarPerfil', [miControlador::class, 'modificarMiPerfil']);
 Route::post('/borrarPerfil', [miControlador::class, 'borrarMiCuenta']);
