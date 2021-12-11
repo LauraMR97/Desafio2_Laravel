@@ -348,8 +348,9 @@ class miControlador extends Controller
             $nombre = $val->get('nombre');
             $descripcion = $val->get('descripcion');
             $ciudad = $val->get('ciudad');
+            $edad= $val->get('edad');
 
-            Persona::where('correo',$correoAntiguo)->update(['correo'=>$correo,'nick'=>$nick,'nombre'=>$nombre,'descripcion'=>$descripcion,'ciudad'=>$ciudad]);
+            Persona::where('correo',$correoAntiguo)->update(['correo'=>$correo,'nick'=>$nick,'nombre'=>$nombre,'edad'=>$edad,'descripcion'=>$descripcion,'ciudad'=>$ciudad]);
             return response()->json([
                 'message' => 'Perfil Modificado'
             ], 201);
