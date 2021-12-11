@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class GustoGenero extends Migration
+class PreferenciasPersona extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class GustoGenero extends Migration
      */
     public function up()
     {
-        Schema::create('gusto_genero', function (Blueprint $table) {
-            $table->unsignedBigInteger('id');
+        Schema::create('preferencias_persona', function (Blueprint $table) {
             $table->string('correo');
-            $table->primary(['correo', 'id']);
-            $table->foreign('id')->references('id')->on('generos')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('id_preferencia');
+            $table->primary(['correo', 'id_preferencia']);
+            $table->foreign('id_preferencia')->references('id')->on('preferencias')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('correo')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
+            $table->integer('intensidad');
             $table->timestamps();
         });
     }
