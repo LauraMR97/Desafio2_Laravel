@@ -13,6 +13,7 @@ use App\Models\Diferencia;
 use App\Models\Preferencia;
 use App\Models\PersonaPreferencia;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class miControlador extends Controller
 {
@@ -136,30 +137,25 @@ class miControlador extends Controller
      */
     public function passOlvidada(Request $val)
     {
-        $datos = [
-            'nombreUsuario' => 'Laura',
-            'email' => 'lauramorenoramos97@gmail.com'
-        ];
-        $correo ='lauramorenoramos97@gmail.com';
-        Mail::send('welcome', $datos, function($message) use ($correo)
-            {
-                $message->to($correo)->subject('Ejemplo de envío');
-                $message->from('AuxiliarDAW2@gmail.com', 'Esto es un ejemplo de envío de correo electronico');
-            });
-
         $correo = $val->get('correo');
         $persona = Persona::find($correo);
-
-        $datos = [
-            'correo' => $correo
-        ];
+        $correoAux= $persona->correo;
 
         if ($persona != null) {
 
-            Mail::send('welcome', $datos, function($message) use ($correo)
+            //Con esto genero una contraseña nueva y aleatoria
+            $nuevaPass=Str::random(10);
+            Persona::where('correo',$correoAux)->update(['password'=>$nuevaPass]);
+
+        $datos = [
+            'correo' => $correoAux,
+            'passwordNew'=>$nuevaPass
+        ];
+
+            Mail::send('newPass', $datos, function($message) use ($correoAux)
             {
-                $message->to($correo)->subject('Ejemplo de envío');
-                $message->from('auxiliardaw2@gmail.com', 'Esto es un ejemplo de envío de correo electronico');
+                $message->to($correoAux)->subject('Wiikinder');
+                $message->from('auxiliardaw2@gmail.com', 'Tu contraseña ha sido modificada');
             });
 
             return response()->json([
@@ -348,8 +344,9 @@ class miControlador extends Controller
             $nombre = $val->get('nombre');
             $descripcion = $val->get('descripcion');
             $ciudad = $val->get('ciudad');
+            $edad= $val->get('edad');
 
-            Persona::where('correo',$correoAntiguo)->update(['correo'=>$correo,'nick'=>$nick,'nombre'=>$nombre,'descripcion'=>$descripcion,'ciudad'=>$ciudad]);
+            Persona::where('correo',$correoAntiguo)->update(['correo'=>$correo,'nick'=>$nick,'nombre'=>$nombre,'edad'=>$edad,'descripcion'=>$descripcion,'ciudad'=>$ciudad]);
             return response()->json([
                 'message' => 'Perfil Modificado'
             ], 201);
