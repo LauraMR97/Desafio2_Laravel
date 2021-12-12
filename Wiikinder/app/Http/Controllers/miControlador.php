@@ -336,9 +336,7 @@ class miControlador extends Controller
         $password2 = $val->get('password2');
 
         if ($password1 == $password2) {
-            //$personaAntigua = session()->get('persona');
-            //$correoAntiguo = $personaAntigua->correo;
-            $correoAntiguo='Lola@gmail.com';
+            $correoAntiguo=$val->get('correoAnt');;
             $correo = $val->get('correo');
             $nick = $val->get('nick');
             $nombre = $val->get('nombre');
