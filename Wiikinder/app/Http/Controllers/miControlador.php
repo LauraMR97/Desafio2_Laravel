@@ -438,11 +438,11 @@ class miControlador extends Controller
         $correo = $val->get('correo');
         $informacionCompacta = array();
 
-        $persona = Persona::select('nick', 'nombre', 'edad', 'descripcion', 'id_genero', 'tieneHijos', 'tipoRelaccion', 'hijosDeseados')->where('correo', '=', $correo)->get();
+        $persona = Persona::select('nick', 'nombre', 'edad', 'descripcion', 'id_genero', 'tieneHijos', 'tipoRelaccion', 'hijosDeseados','ciudad')->where('correo', '=', $correo)->get();
         $informacionCompacta[] = $persona;
         $interesGenero = GustoGenero::select('id')->where('correo', '=', $correo)->get();
         $informacionCompacta[] = $interesGenero;
-        $preferenciasPersona = PersonaPreferencia::select('id_preferencia', 'intensidad')->where('correo', '=', $correo)->get();
+        $preferenciasPersona = PersonaPreferencia::select('intensidad')->where('correo', '=', $correo)->get();
         $informacionCompacta[] = $preferenciasPersona;
         return response()->json($informacionCompacta, 200);
     }
