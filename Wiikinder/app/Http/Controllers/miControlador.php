@@ -12,6 +12,7 @@ use App\Models\Conjunto;
 use App\Models\Diferencia;
 use App\Models\Preferencia;
 use App\Models\PersonaPreferencia;
+use App\Models\Amigo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -106,11 +107,11 @@ class miControlador extends Controller
     {
         $correo = $val->get('correo');
         $password = $val->get('password');
-        $persona=Persona::where('correo','=',$correo)->where('password','=',$password)->first();
+        $persona = Persona::where('correo', '=', $correo)->where('password', '=', $password)->first();
         $conectado = 'si';
 
         if ($persona) {
-            $rol=Conjunto::where('correo','=',$correo)->get();
+            $rol = Conjunto::where('correo', '=', $correo)->get();
 
             session()->put('persona', $persona);
             session()->put('correo', $persona->correo);
@@ -118,9 +119,9 @@ class miControlador extends Controller
             Persona::where('correo', $correo)
                 ->update(['conectado' => $conectado]);
 
-                return response()->json([
-                    'message' => 'Datos encontrados'
-                ], 201);
+            return response()->json([
+                'message' => 'Datos encontrados'
+            ], 201);
         } else {
             return response()->json([
                 'message' => 'Datos no encontrados'
@@ -139,21 +140,20 @@ class miControlador extends Controller
     {
         $correo = $val->get('correo');
         $persona = Persona::find($correo);
-        $correoAux= $persona->correo;
+        $correoAux = $persona->correo;
 
         if ($persona != null) {
 
             //Con esto genero una contraseña nueva y aleatoria
-            $nuevaPass=Str::random(10);
-            Persona::where('correo',$correoAux)->update(['password'=>$nuevaPass]);
+            $nuevaPass = Str::random(10);
+            Persona::where('correo', $correoAux)->update(['password' => $nuevaPass]);
 
-        $datos = [
-            'correo' => $correoAux,
-            'passwordNew'=>$nuevaPass
-        ];
+            $datos = [
+                'correo' => $correoAux,
+                'passwordNew' => $nuevaPass
+            ];
 
-            Mail::send('newPass', $datos, function($message) use ($correoAux)
-            {
+            Mail::send('newPass', $datos, function ($message) use ($correoAux) {
                 $message->to($correoAux)->subject('Wiikinder');
                 $message->from('auxiliardaw2@gmail.com', 'Tu contraseña ha sido modificada');
             });
@@ -176,7 +176,7 @@ class miControlador extends Controller
     public function crearFormularioPreferencias(Request $val)
     {
 
-        $personaAfectada=$val->get('correo');
+        $personaAfectada = $val->get('correo');
 
         //del 0 al 100
         $Deportivos = $val->get('deporte');
@@ -305,18 +305,18 @@ class miControlador extends Controller
     public function mostrarPreferencias(Request $val)
     {
         $correo = $val->get('correo');
-        $personas= array();
-        $gustoGenero=GustoGenero::where('correo','=',$correo)->first();
-        $diferencia= Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $correo])->orWhere(['correo2' => $correo])->get();
+        $personas = array();
+        $gustoGenero = GustoGenero::where('correo', '=', $correo)->first();
+        $diferencia = Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $correo])->orWhere(['correo2' => $correo])->get();
         foreach ($diferencia as $d) {
-           foreach(Persona::where('correo','=',$d->correo1)->where('correo','!=',$correo)->orWhere('correo','=',$d->correo2)->where('correo','!=',$correo)->get() as $p){
-            if($p->id_genero==$gustoGenero->id){
-                $personas[]=$p;
+            foreach (Persona::where('correo', '=', $d->correo1)->where('correo', '!=', $correo)->orWhere('correo', '=', $d->correo2)->where('correo', '!=', $correo)->get() as $p) {
+                if ($p->id_genero == $gustoGenero->id) {
+                    $personas[] = $p;
+                }
+                if ($gustoGenero->id == 3) {
+                    $personas[] = $p;
+                }
             }
-            if($gustoGenero->id==3){
-                $personas[]=$p;
-            }
-           }
         }
         return response($personas);
     }
@@ -324,8 +324,8 @@ class miControlador extends Controller
 
     public function verMiPerfil(Request $val)
     {
-        $correo= $val->get('correo');
-       $persona= Persona::where('correo',$correo)->get();
+        $correo = $val->get('correo');
+        $persona = Persona::where('correo', $correo)->get();
         return $persona;
     }
 
@@ -336,32 +336,79 @@ class miControlador extends Controller
         $password2 = $val->get('password2');
 
         if ($password1 == $password2) {
-            //$personaAntigua = session()->get('persona');
-            //$correoAntiguo = $personaAntigua->correo;
-            $correoAntiguo='Lola@gmail.com';
+            $correoAntiguo = $val->get('correoAnt');;
             $correo = $val->get('correo');
             $nick = $val->get('nick');
             $nombre = $val->get('nombre');
             $descripcion = $val->get('descripcion');
             $ciudad = $val->get('ciudad');
-            $edad= $val->get('edad');
+            $edad = $val->get('edad');
 
-            Persona::where('correo',$correoAntiguo)->update(['correo'=>$correo,'nick'=>$nick,'nombre'=>$nombre,'edad'=>$edad,'descripcion'=>$descripcion,'ciudad'=>$ciudad]);
+            Persona::where('correo', $correoAntiguo)->update(['correo' => $correo, 'nick' => $nick, 'nombre' => $nombre, 'edad' => $edad, 'descripcion' => $descripcion, 'ciudad' => $ciudad]);
             return response()->json([
                 'message' => 'Perfil Modificado'
             ], 201);
         } else {
 
-        return response()->json([
-            'message' => 'Las contraseñas son distintas'
-        ], 401);
+            return response()->json([
+                'message' => 'Las contraseñas son distintas'
+            ], 401);
         }
     }
 
-    public function borrarMiCuenta(Request $val){
-        $correo=$val->get('correo');
+    public function borrarMiCuenta(Request $val)
+    {
+        $correo = $val->get('correo');
         $persona = Persona::find($correo);
         $persona->delete();
     }
 
+
+    public function addAmigo(Request $val)
+    {
+        $correo = $val->get('correo');
+        $correoAmigo = $val->get('correoAmigo');
+
+        $amigosExisten = Amigo::where('correo1', '=', $correo)->where('correo2', '=', $correoAmigo)->first();
+
+        if (!$amigosExisten) {
+            Amigo::create(['correo1' => $correo, 'correo2' => $correoAmigo]);
+            Amigo::create(['correo2' => $correo, 'correo1' => $correoAmigo]);
+
+            return response()->json([
+                'message' => 'Datos insertados'
+            ], 201);
+        }else{
+            return response()->json([
+                'message' => 'Este usuario y tu ya sois amigos'
+            ], 401);
+        }
+    }
+
+    public function mostrarAmigos(Request $val)
+    {
+
+        //correo de la persona que va a ver sus amigos
+        $correo = $val->get('correo');
+        //select de los amigos de esta persona
+        $amigos=Amigo::select('correo2')->where(['correo1' => $correo])->get();
+        $amigosConectados= array();
+
+        foreach($amigos as $a){
+            //veo de la tabla personas a los amigos del interesado
+            $personas=Persona::where(['correo' => $a->correo2])->get();
+            //veo si ese amigo en concreto esta conectado
+            foreach($personas as $p){
+                if($p->conectado=='si'){
+                    $amigosConectados[]=$p->correo;
+                }
+            }
+        }
+        return response()->json($amigosConectados, 200);
+    }
+
+    public function verPerfilesOtrasPersonas(Request $val){
+        $correo = $val->get('correo');
+        $correoOtraPersona = $val->get('correoOtraPersona');
+    }
 }
