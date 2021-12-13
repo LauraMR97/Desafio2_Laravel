@@ -36,8 +36,9 @@ Route::post('/formularioPreferencias', [miControlador::class, 'crearFormularioPr
 Route::any('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']);
 
 //Añadir amigos y Amigos conectados
-Route::any('/amigos', [miControlador::class, 'mostrarAmigos']);
+Route::post('/enviarPeti', [miControlador::class, 'enviarPeticion']);
 Route::post('/aniadirAmigo', [miControlador::class, 'addAmigo']);
+Route::any('/amigos', [miControlador::class, 'mostrarAmigos']);
 
 //Crud Administrador
 Route::get('/crudAdmin', [miControlador::class, 'mostrarCrudAdmin']);

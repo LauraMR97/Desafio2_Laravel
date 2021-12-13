@@ -400,10 +400,11 @@ class miControlador extends Controller
         $correo = $val->get('correo');
         $correoAmigo = $val->get('correoAmigo');
 
-        $amigosExisten = Amigo::where('correo1', '=', $correo)->where('correo2', '=', $correoAmigo)->first();
 
             Amigo::create(['correo1' => $correo, 'correo2' => $correoAmigo]);
             Amigo::create(['correo2' => $correo, 'correo1' => $correoAmigo]);
+
+            Peticion::where('correo_destino', $correo)->delete();
 
             return response()->json([
                 'message' => 'Amigo añadido'
