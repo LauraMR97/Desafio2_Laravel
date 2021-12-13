@@ -11,6 +11,7 @@ use App\Models\GustoGenero;
 use App\Models\Conjunto;
 use App\Models\Diferencia;
 use App\Models\Preferencia;
+use App\Models\Peticion;
 use App\Models\PersonaPreferencia;
 use App\Models\Amigo;
 use Illuminate\Support\Arr;
@@ -364,20 +365,22 @@ class miControlador extends Controller
         $persona->delete();
     }
 
-
-    public function addAmigo(Request $val)
+    /**
+     * Esta funcion te permite enviar una peticion de amistad a alguien
+     *
+     * @param Request $val
+     * @return void
+     */
+    public function enviarPeticion(Request $val)
     {
         $correo = $val->get('correo');
         $correoAmigo = $val->get('correoAmigo');
 
         $amigosExisten = Amigo::where('correo1', '=', $correo)->where('correo2', '=', $correoAmigo)->first();
-
         if (!$amigosExisten) {
-            Amigo::create(['correo1' => $correo, 'correo2' => $correoAmigo]);
-            Amigo::create(['correo2' => $correo, 'correo1' => $correoAmigo]);
-
+            Peticion::create(['correo_origen' => $correo, 'correo_destino' => $correoAmigo]);
             return response()->json([
-                'message' => 'Datos insertados'
+                'message' => 'Peticion enviada'
             ], 201);
         }else{
             return response()->json([
@@ -386,38 +389,60 @@ class miControlador extends Controller
         }
     }
 
+     /**
+      * Esta funcion te permite añadir a un amigo
+      *
+      * @param Request $val
+      * @return void
+      */
+    public function addAmigo(Request $val)
+    {
+        $correo = $val->get('correo');
+        $correoAmigo = $val->get('correoAmigo');
+
+        $amigosExisten = Amigo::where('correo1', '=', $correo)->where('correo2', '=', $correoAmigo)->first();
+
+            Amigo::create(['correo1' => $correo, 'correo2' => $correoAmigo]);
+            Amigo::create(['correo2' => $correo, 'correo1' => $correoAmigo]);
+
+            return response()->json([
+                'message' => 'Amigo añadido'
+            ], 201);
+    }
+
     public function mostrarAmigos(Request $val)
     {
 
         //correo de la persona que va a ver sus amigos
         $correo = $val->get('correo');
         //select de los amigos de esta persona
-        $amigos=Amigo::select('correo2')->where(['correo1' => $correo])->get();
-        $amigosConectados= array();
+        $amigos = Amigo::select('correo2')->where(['correo1' => $correo])->get();
+        $amigosConectados = array();
 
-        foreach($amigos as $a){
+        foreach ($amigos as $a) {
             //veo de la tabla personas a los amigos del interesado
-            $personas=Persona::where(['correo' => $a->correo2])->get();
+            $personas = Persona::where(['correo' => $a->correo2])->get();
             //veo si ese amigo en concreto esta conectado
-            foreach($personas as $p){
-                if($p->conectado=='si'){
-                    $amigosConectados[]=$p->correo;
+            foreach ($personas as $p) {
+                if ($p->conectado == 'si') {
+                    $amigosConectados[] = $p->correo;
                 }
             }
         }
         return response()->json($amigosConectados, 200);
     }
 
-    public function verPerfilesOtrasPersonas(Request $val){
+    public function verPerfilesOtrasPersonas(Request $val)
+    {
         $correo = $val->get('correo');
-        $informacionCompacta=array();
+        $informacionCompacta = array();
 
-        $persona=Persona::select('nick','nombre','edad','descripcion','id_genero','tieneHijos','tipoRelaccion','hijosDeseados')->where('correo','=',$correo)->get();
-        $informacionCompacta[]=$persona;
-        $interesGenero=GustoGenero::select('id')->where('correo','=',$correo)->get();
-        $informacionCompacta[]=$interesGenero;
-        $preferenciasPersona=PersonaPreferencia::select('id_preferencia','intensidad')->where('correo','=',$correo)->get();
-        $informacionCompacta[]=$preferenciasPersona;
+        $persona = Persona::select('nick', 'nombre', 'edad', 'descripcion', 'id_genero', 'tieneHijos', 'tipoRelaccion', 'hijosDeseados')->where('correo', '=', $correo)->get();
+        $informacionCompacta[] = $persona;
+        $interesGenero = GustoGenero::select('id')->where('correo', '=', $correo)->get();
+        $informacionCompacta[] = $interesGenero;
+        $preferenciasPersona = PersonaPreferencia::select('id_preferencia', 'intensidad')->where('correo', '=', $correo)->get();
+        $informacionCompacta[] = $preferenciasPersona;
         return response()->json($informacionCompacta, 200);
     }
 }
