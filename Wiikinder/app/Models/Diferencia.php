@@ -16,4 +16,8 @@ class Diferencia extends Model
     public function persona(){
             return $this->hasMany('App\Models\Persona','correo1','correo');
     }
+
+    public function persona2(){
+        return $this->hasMany('App\Models\Persona','correo2','correo');
+}
 }

@@ -16,6 +16,14 @@ class Persona extends Model
 
 
     public function conjunto(){
-        return $this->hasMany('App\Models\Conjunto','correo','correo');
+       return $this->hasMany('App\Models\Conjunto','correo','correo');
+    }
+
+    public function diferencia(){
+        return $this->hasMany('App\Models\Diferencia','correo','correo1');
+    }
+
+    public function diferencia2(){
+        return $this->hasMany('App\Models\Diferencia','correo','correo2');
     }
 }

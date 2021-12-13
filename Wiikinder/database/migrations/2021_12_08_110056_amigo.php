@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Diferencias extends Migration
+class Amigo extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class Diferencias extends Migration
      */
     public function up()
     {
-        Schema::create('diferencias', function (Blueprint $table) {
+        Schema::create('amigos', function (Blueprint $table) {
             $table->string('correo1');
             $table->string('correo2');
-            $table->integer('diferencia');
-            $table->primary(['correo1','correo2']);
+            $table->primary(['correo1', 'correo2']);
             $table->foreign('correo1')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('correo2')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
