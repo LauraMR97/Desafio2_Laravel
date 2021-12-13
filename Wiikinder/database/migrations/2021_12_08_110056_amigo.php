@@ -17,8 +17,8 @@ class Amigo extends Migration
             $table->string('correo1');
             $table->string('correo2');
             $table->primary(['correo1', 'correo2']);
-            $table->foreign('correo1')->references('correo')->on('personas')->onDelete('cascade');
-            $table->foreign('correo2')->references('correo')->on('personas')->onDelete('cascade');
+            $table->foreign('correo1')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('correo2')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

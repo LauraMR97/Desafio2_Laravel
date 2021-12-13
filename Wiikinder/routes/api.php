@@ -33,10 +33,14 @@ Route::post('/registroPreferencia', [miControlador::class, 'crearPreferencia']);
 Route::post('/formularioPreferencias', [miControlador::class, 'crearFormularioPreferencias']);
 
 //Mostrar Preferencias
-Route::get('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']);
+Route::any('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']);
 
 //Personas Conectadas
 
 //Crud Administrador
 Route::get('/crudAdmin', [miControlador::class, 'mostrarCrudAdmin']);
 
+//Perfiles de Usuario
+Route::any('/miPerfil', [miControlador::class, 'verMiPerfil']);
+Route::post('/modificarPerfil', [miControlador::class, 'modificarMiPerfil']);
+Route::post('/borrarPerfil', [miControlador::class, 'borrarMiCuenta']);

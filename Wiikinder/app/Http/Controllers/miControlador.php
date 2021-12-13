@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use App\Models\Rol;
 use App\Models\Persona;
@@ -11,6 +12,8 @@ use App\Models\Conjunto;
 use App\Models\Diferencia;
 use App\Models\Preferencia;
 use App\Models\PersonaPreferencia;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class miControlador extends Controller
 {
@@ -25,7 +28,10 @@ class miControlador extends Controller
 
         Rol::create($val->all());
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+
+        return response()->json([
+            'message' => 'Rol creado'
+        ], 201);
     }
 
     /**
@@ -38,7 +44,9 @@ class miControlador extends Controller
     {
         Preferencia::create($val->all());
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+        return response()->json([
+            'message' => 'Preferencia creada'
+        ], 201);
     }
 
     /**
@@ -52,7 +60,9 @@ class miControlador extends Controller
 
         Genero::create($val->all());
 
-        return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+        return response()->json([
+            'message' => 'Genero creado'
+        ], 201);
     }
 
     /**
@@ -68,16 +78,20 @@ class miControlador extends Controller
         $correo = $val->get('correo');
         $id_rol = 2;
         $passRepeat = $val->get('passRepeat');
-        $diferencia = 0;
         unset($val['passRepeat']);
 
         if ($val->get('password') == $passRepeat) {
             session()->put($correo, 'personaRegistrandose');
             Persona::create(['correo' => $val->get('correo'), 'nombre' => $val->get('nombre'), 'nick' => $val->get('nick'), 'password' => $val->get('password'), 'edad' => $val->get('edad'), 'ciudad' => $val->get('ciudad'), 'descripcion' => '', 'tema' => 'claro', 'foto' => './public/ImagenesPerfil', 'activo' => 'no', 'conectado' => 'no', 'id_genero' => $val->get('id_genero'), 'tieneHijos' => 0, 'tipoRelaccion' => 'Ninguna', 'hijosDeseados' => 0]);
             Conjunto::create(['correo' => $correo, 'id_rol' => $id_rol]);
-            return response()->json(['code' => 201, 'message' => 'Datos insertados']);
+
+            return response()->json([
+                'message' => 'Datos insertados'
+            ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'Las contraseñas son distintas']);
+            return response()->json([
+                'message' => 'Las contraseñas son distintas'
+            ], 401);
         }
     }
 
@@ -92,18 +106,25 @@ class miControlador extends Controller
     {
         $correo = $val->get('correo');
         $password = $val->get('password');
-        $persona = Persona::find(['correo' => $correo, 'password' => $password]);
+        $persona=Persona::where('correo','=',$correo)->where('password','=',$password)->first();
         $conectado = 'si';
 
-        if ($persona != null) {
+        if ($persona) {
+            $rol=Conjunto::where('correo','=',$correo)->get();
+
             session()->put('persona', $persona);
+            session()->put('correo', $persona->correo);
 
             Persona::where('correo', $correo)
                 ->update(['conectado' => $conectado]);
 
-            return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
+                return response()->json([
+                    'message' => 'Datos encontrados'
+                ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'Login incorrecto']);
+            return response()->json([
+                'message' => 'Datos no encontrados'
+            ], 401);
         }
     }
 
@@ -118,11 +139,32 @@ class miControlador extends Controller
     {
         $correo = $val->get('correo');
         $persona = Persona::find($correo);
+        $correoAux= $persona->correo;
 
         if ($persona != null) {
-            return response()->json(['code' => 201, 'message' => 'Datos encontrados']);
+
+            //Con esto genero una contraseña nueva y aleatoria
+            $nuevaPass=Str::random(10);
+            Persona::where('correo',$correoAux)->update(['password'=>$nuevaPass]);
+
+        $datos = [
+            'correo' => $correoAux,
+            'passwordNew'=>$nuevaPass
+        ];
+
+            Mail::send('newPass', $datos, function($message) use ($correoAux)
+            {
+                $message->to($correoAux)->subject('Wiikinder');
+                $message->from('auxiliardaw2@gmail.com', 'Tu contraseña ha sido modificada');
+            });
+
+            return response()->json([
+                'message' => 'Datos encontrados'
+            ], 201);
         } else {
-            return response()->json(['code' => 401, 'message' => 'correo no registrado']);
+            return response()->json([
+                'message' => 'Correo no registrado'
+            ], 401);
         }
     }
 
@@ -134,8 +176,7 @@ class miControlador extends Controller
     public function crearFormularioPreferencias(Request $val)
     {
 
-        //$personaAfectada=session()->get('personaRegistrandose');
-        $personaAfectada = 'Esther@gmail.com';
+        $personaAfectada=$val->get('correo');
 
         //del 0 al 100
         $Deportivos = $val->get('deporte');
@@ -163,7 +204,7 @@ class miControlador extends Controller
         //Solo pillo a las personas que por genero le molan a la persona que se esta
         //creando excepto la que se esta creando
         $personas = '';
-        $diferencia=0;
+        $diferencia = 0;
 
         if ($interesDeGenero == 1 || $interesDeGenero == 2) {
             $personas = Persona::where('id_genero', $interesDeGenero)->get();
@@ -180,59 +221,59 @@ class miControlador extends Controller
                 //Gustos Deporte
                 if ($preferencia->id_preferencia == 1) {
                     if ($Deportivos > $preferencia->intensidad) {
-                        $diferencia = $diferencia+ $Deportivos - $preferencia->intensidad;
+                        $diferencia = $diferencia + $Deportivos - $preferencia->intensidad;
                     } else {
-                        $diferencia = $diferencia+ $preferencia->intensidad - $Deportivos;
+                        $diferencia = $diferencia + $preferencia->intensidad - $Deportivos;
                     }
                 }
 
                 //Gustos Arte
                 if ($preferencia->id_preferencia == 2) {
                     if ($Artisticos > $preferencia->intensidad) {
-                        $diferencia = $diferencia+ $Artisticos - $preferencia->intensidad;
+                        $diferencia = $diferencia + $Artisticos - $preferencia->intensidad;
                     } else {
-                        $diferencia = $diferencia+ $preferencia->intensidad - $Artisticos;
+                        $diferencia = $diferencia + $preferencia->intensidad - $Artisticos;
                     }
                 }
 
                 //Gustos Politica
                 if ($preferencia->id_preferencia == 3) {
                     if ($Politicos > $preferencia->intensidad) {
-                        $diferencia = $diferencia+ $Politicos - $preferencia->intensidad;
+                        $diferencia = $diferencia + $Politicos - $preferencia->intensidad;
                     } else {
-                        $diferencia = $diferencia+ $preferencia->intensidad - $Politicos;
+                        $diferencia = $diferencia + $preferencia->intensidad - $Politicos;
                     }
                 }
             }
 
             //Tipo de relaccion. vale x100
 
-            if($tipoRelaccion==$per->tipoRelaccion){
-                $diferencia =$diferencia+100;
-            }else{
-                $diferencia=$diferencia-100;
+            if ($tipoRelaccion == $per->tipoRelaccion) {
+                $diferencia = $diferencia + 100;
+            } else {
+                $diferencia = $diferencia - 100;
             }
 
 
             //Hijos
             //Si la persona registrandose tiene hijos y la otra persona los quiere +100
             //Si es al reves +100
-            if($tieneHijos==1 && $per->hijosDeseados>0 || $per->tieneHijos==1 && $quiereHijos){
-                $diferencia=$diferencia+100;
-            }else{
+            if ($tieneHijos == 1 && $per->hijosDeseados > 0 || $per->tieneHijos == 1 && $quiereHijos) {
+                $diferencia = $diferencia + 100;
+            } else {
                 //SI la persona registrandose no quiere hijos y la otra tampoco +100
-                if($quiereHijos==0 && $per->hijosDeseados==0){
-                    $diferencia=$diferencia+100;
-                }else{
+                if ($quiereHijos == 0 && $per->hijosDeseados == 0) {
+                    $diferencia = $diferencia + 100;
+                } else {
                     //Si la persona registrandose quiere hijos y la otra tambien
-                    if($quiereHijos==1 && $per->hijosDeseados>0){
-                        $diferencia=$diferencia+100;
-                    }else{
+                    if ($quiereHijos == 1 && $per->hijosDeseados > 0) {
+                        $diferencia = $diferencia + 100;
+                    } else {
                         //Si la persona registrada tiene hijos pero no quiere mas y la otra persona no tiene pero si quiere o viceversa +100
-                        if($tieneHijos==1 && $quiereHijos==0 && $per->tieneHijos==0 && $per->hijosDeseados>0 || $tieneHijos==0 && $quiereHijos>0 && $per->tieneHijos==1 && $per->hijosDeseados==0){
-                            $diferencia=$diferencia+100;
-                        }else{
-                            $diferencia=$diferencia-100;
+                        if ($tieneHijos == 1 && $quiereHijos == 0 && $per->tieneHijos == 0 && $per->hijosDeseados > 0 || $tieneHijos == 0 && $quiereHijos > 0 && $per->tieneHijos == 1 && $per->hijosDeseados == 0) {
+                            $diferencia = $diferencia + 100;
+                        } else {
+                            $diferencia = $diferencia - 100;
                         }
                     }
                 }
@@ -240,8 +281,11 @@ class miControlador extends Controller
 
             //Genero-> Como yo ya filtre por gusto de genero mas arriba, me aseguro de que si o si se gustan por lo tanto, no lo voy a contabilizar
             //Añado todo a la tabla Diferencia
-            Diferencia::create(['correo1'=>$personaAfectada,'correo2'=>$per->correo,'diferencia'=>$diferencia]);
+            Diferencia::create(['correo1' => $personaAfectada, 'correo2' => $per->correo, 'diferencia' => $diferencia]);
         }
+
+
+
         return response()->json($persona, 200);
     }
 
@@ -258,10 +302,64 @@ class miControlador extends Controller
 
 
 
-    public function mostrarPreferencias(){
-     $personaLogeada= session()->get('personaRegistrandose');
-
-        return Diferencia::orderBy('diferencia','ASC')->where(['correo1'=> $personaLogeada])->get();
+    public function mostrarPreferencias(Request $val)
+    {
+        $correo = $val->get('correo');
+        $personas= array();
+        $gustoGenero=GustoGenero::where('correo','=',$correo)->first();
+        $diferencia= Diferencia::orderBy('diferencia', 'ASC')->where(['correo1' => $correo])->orWhere(['correo2' => $correo])->get();
+        foreach ($diferencia as $d) {
+           foreach(Persona::where('correo','=',$d->correo1)->where('correo','!=',$correo)->orWhere('correo','=',$d->correo2)->where('correo','!=',$correo)->get() as $p){
+            if($p->id_genero==$gustoGenero->id){
+                $personas[]=$p;
+            }
+            if($gustoGenero->id==3){
+                $personas[]=$p;
+            }
+           }
+        }
+        return response($personas);
     }
-}
 
+
+    public function verMiPerfil(Request $val)
+    {
+        $correo= $val->get('correo');
+       $persona= Persona::where('correo',$correo)->get();
+        return $persona;
+    }
+
+
+    public function modificarMiPerfil(Request $val)
+    {
+        $password1 = $val->get('password1');
+        $password2 = $val->get('password2');
+
+        if ($password1 == $password2) {
+            $correoAntiguo=$val->get('correoAnt');;
+            $correo = $val->get('correo');
+            $nick = $val->get('nick');
+            $nombre = $val->get('nombre');
+            $descripcion = $val->get('descripcion');
+            $ciudad = $val->get('ciudad');
+            $edad= $val->get('edad');
+
+            Persona::where('correo',$correoAntiguo)->update(['correo'=>$correo,'nick'=>$nick,'nombre'=>$nombre,'edad'=>$edad,'descripcion'=>$descripcion,'ciudad'=>$ciudad]);
+            return response()->json([
+                'message' => 'Perfil Modificado'
+            ], 201);
+        } else {
+
+        return response()->json([
+            'message' => 'Las contraseñas son distintas'
+        ], 401);
+        }
+    }
+
+    public function borrarMiCuenta(Request $val){
+        $correo=$val->get('correo');
+        $persona = Persona::find($correo);
+        $persona->delete();
+    }
+
+}
