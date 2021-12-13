@@ -15,6 +15,7 @@ use App\Models\PersonaPreferencia;
 use App\Models\Amigo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use PreferenciasPersona;
 
 class miControlador extends Controller
 {
@@ -409,6 +410,14 @@ class miControlador extends Controller
 
     public function verPerfilesOtrasPersonas(Request $val){
         $correo = $val->get('correo');
-        $correoOtraPersona = $val->get('correoOtraPersona');
+        $informacionCompacta=array();
+
+        $persona=Persona::select('nick','nombre','edad','descripcion','id_genero','tieneHijos','tipoRelaccion','hijosDeseados')->where('correo','=',$correo)->get();
+        $informacionCompacta[]=$persona;
+        $interesGenero=GustoGenero::select('id')->where('correo','=',$correo)->get();
+        $informacionCompacta[]=$interesGenero;
+        $preferenciasPersona=PersonaPreferencia::select('id_preferencia','intensidad')->where('correo','=',$correo)->get();
+        $informacionCompacta[]=$preferenciasPersona;
+        return response()->json($informacionCompacta, 200);
     }
 }
