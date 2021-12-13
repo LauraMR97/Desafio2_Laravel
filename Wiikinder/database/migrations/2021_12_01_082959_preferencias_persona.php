@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Conjunto extends Migration
+class PreferenciasPersona extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class Conjunto extends Migration
      */
     public function up()
     {
-        Schema::create('conjuntos', function (Blueprint $table) {
+        Schema::create('preferencias_persona', function (Blueprint $table) {
             $table->string('correo');
-            $table->unsignedBigInteger('id_rol');
-            $table->primary(['correo', 'id_rol']);
+            $table->unsignedBigInteger('id_preferencia');
+            $table->primary(['correo', 'id_preferencia']);
+            $table->foreign('id_preferencia')->references('id')->on('preferencias')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('correo')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('id_rol')->references('id')->on('rol')->onDelete('cascade')->onUpdate('cascade');
+            $table->integer('intensidad');
             $table->timestamps();
         });
     }

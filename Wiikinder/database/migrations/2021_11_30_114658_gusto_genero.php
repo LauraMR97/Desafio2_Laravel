@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Conjunto extends Migration
+class GustoGenero extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class Conjunto extends Migration
      */
     public function up()
     {
-        Schema::create('conjuntos', function (Blueprint $table) {
+        Schema::create('gusto_genero', function (Blueprint $table) {
+            $table->unsignedBigInteger('id');
             $table->string('correo');
-            $table->unsignedBigInteger('id_rol');
-            $table->primary(['correo', 'id_rol']);
+            $table->primary(['correo', 'id']);
+            $table->foreign('id')->references('id')->on('generos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('correo')->references('correo')->on('personas')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('id_rol')->references('id')->on('rol')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

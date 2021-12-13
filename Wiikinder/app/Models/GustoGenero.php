@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class GustoGenero extends Model
 {
     use HasFactory;
+    protected $fillable=['id','correo'];
     protected $table = 'gusto_genero';
     public $incrementing = false; //Para indicarle que la clave no es autoincremental.
     protected $keyType = 'string';   //Indicamos que la clave no es entera.

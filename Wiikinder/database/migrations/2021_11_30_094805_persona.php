@@ -25,9 +25,10 @@ class Persona extends Migration
             $table->string('foto');
             $table->string('activo');
             $table->string('conectado');
-            $table->integer('id_genero')->index();
-            $table->boolean('quiereHijos');
-            $table->boolean('tipoRelaccion');
+            $table->unsignedBigInteger('id_genero')->index();
+            $table->foreign('id_genero')->references('id')->on('generos')->onDelete('cascade')->onUpdate('cascade');
+            $table->boolean('tieneHijos');
+            $table->string('tipoRelaccion');
             $table->integer('hijosDeseados');
             $table->timestamps();
         });

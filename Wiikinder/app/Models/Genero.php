@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Genero extends Model
 {
     use HasFactory;
+    protected $fillable=['descripcion'];
 
     public function generoDeLaPersona(){
         return $this->belongsTo('App\Models\Persona','correo','correo');
