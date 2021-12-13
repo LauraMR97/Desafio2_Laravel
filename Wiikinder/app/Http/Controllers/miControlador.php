@@ -410,7 +410,5 @@ class miControlador extends Controller
     public function verPerfilesOtrasPersonas(Request $val){
         $correo = $val->get('correo');
         $correoOtraPersona = $val->get('correoOtraPersona');
-
-
     }
 }
