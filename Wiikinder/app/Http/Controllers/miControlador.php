@@ -111,9 +111,13 @@ class miControlador extends Controller
         $password = $val->get('password');
         $persona = Persona::where('correo', '=', $correo)->where('password', '=', $password)->first();
         $conectado = 'si';
+        $r='';
+
 
         if ($persona) {
-            $rol = Conjunto::where('correo', '=', $correo)->get();
+            foreach (Conjunto::where('correo', '=', $correo)->get() as $r){
+                $rol=$r->id_rol;
+            }
 
             session()->put('persona', $persona);
             session()->put('correo', $persona->correo);
@@ -122,7 +126,8 @@ class miControlador extends Controller
                 ->update(['conectado' => $conectado]);
 
             return response()->json([
-                'message' => 'Datos encontrados'
+                'message' => 'Datos encontrados',
+                    'rol'=> $rol
             ], 201);
         } else {
             return response()->json([
@@ -251,31 +256,31 @@ class miControlador extends Controller
             //Tipo de relaccion. vale x100
 
             if ($tipoRelaccion == $per->tipoRelaccion) {
-                $diferencia = $diferencia + 100;
-            } else {
                 $diferencia = $diferencia - 100;
+            } else {
+                $diferencia = $diferencia + 100;
             }
 
 
             //Hijos
-            //Si la persona registrandose tiene hijos y la otra persona los quiere +100
-            //Si es al reves +100
+            //Si la persona registrandose tiene hijos y la otra persona los quiere -100
+            //Si es al reves -100
             if ($tieneHijos == 1 && $per->hijosDeseados > 0 || $per->tieneHijos == 1 && $quiereHijos) {
-                $diferencia = $diferencia + 100;
+                $diferencia = $diferencia - 100;
             } else {
-                //SI la persona registrandose no quiere hijos y la otra tampoco +100
+                //SI la persona registrandose no quiere hijos y la otra tampoco -100
                 if ($quiereHijos == 0 && $per->hijosDeseados == 0) {
-                    $diferencia = $diferencia + 100;
+                    $diferencia = $diferencia - 100;
                 } else {
                     //Si la persona registrandose quiere hijos y la otra tambien
                     if ($quiereHijos == 1 && $per->hijosDeseados > 0) {
-                        $diferencia = $diferencia + 100;
+                        $diferencia = $diferencia - 100;
                     } else {
-                        //Si la persona registrada tiene hijos pero no quiere mas y la otra persona no tiene pero si quiere o viceversa +100
+                        //Si la persona registrada tiene hijos pero no quiere mas y la otra persona no tiene pero si quiere o viceversa -100
                         if ($tieneHijos == 1 && $quiereHijos == 0 && $per->tieneHijos == 0 && $per->hijosDeseados > 0 || $tieneHijos == 0 && $quiereHijos > 0 && $per->tieneHijos == 1 && $per->hijosDeseados == 0) {
-                            $diferencia = $diferencia + 100;
-                        } else {
                             $diferencia = $diferencia - 100;
+                        } else {
+                            $diferencia = $diferencia + 100;
                         }
                     }
                 }
@@ -285,9 +290,6 @@ class miControlador extends Controller
             //Añado todo a la tabla Diferencia
             Diferencia::create(['correo1' => $personaAfectada, 'correo2' => $per->correo, 'diferencia' => $diferencia]);
         }
-
-
-
         return response()->json($persona, 200);
     }
 

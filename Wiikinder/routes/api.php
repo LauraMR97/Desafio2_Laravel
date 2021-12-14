@@ -23,7 +23,7 @@ Route::post('/registroGenero', [miControlador::class, 'crearGenero']);
 Route::post('/registroPersona', [miControlador::class, 'crearPersona']);
 
 //Login
-Route::post('/login', [miControlador::class, 'login']);
+Route::any('/login', [miControlador::class, 'login']);
 
 //Contraseña Perdida
 Route::post('/passwordOlvidada', [miControlador::class, 'passOlvidada']);
