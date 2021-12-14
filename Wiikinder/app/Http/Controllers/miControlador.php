@@ -411,6 +411,12 @@ class miControlador extends Controller
             ], 201);
     }
 
+    /**
+     * Esta funcion sirve para mostrar a los amigos de una persona
+     *
+     * @param Request $val
+     * @return void
+     */
     public function mostrarAmigos(Request $val)
     {
 
@@ -432,6 +438,9 @@ class miControlador extends Controller
         }
         return response()->json($amigosConectados, 200);
     }
+    /**
+     * Esta funcion sirve para ver los perfiles de otras personas
+     */
 
     public function verPerfilesOtrasPersonas(Request $val)
     {
@@ -448,6 +457,12 @@ class miControlador extends Controller
     }
 
 
+    /**
+     * Esta funcion sirve para borrar un amigo
+     *
+     * @param Request $val
+     * @return void
+     */
     public function delAmigo(Request $val){
         $correo = $val->get('correo');
         $correoAmigo = $val->get('correoAmigo');
@@ -458,5 +473,11 @@ class miControlador extends Controller
         return response()->json([
             'message' => 'Amigo borrado'
         ], 201);
+    }
+
+    public function mostrarPeticiones(Request $val){
+        $correo= $val->get('correo');
+        $peticiones=Peticion::select('correo_origen')->where('correo_destino', $correo)->get();
+        return response()->json($peticiones, 200);
     }
 }

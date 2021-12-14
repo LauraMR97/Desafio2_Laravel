@@ -35,10 +35,11 @@ Route::post('/formularioPreferencias', [miControlador::class, 'crearFormularioPr
 //Mostrar Preferencias
 Route::any('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']);
 
-//Añadir amigos y Amigos conectados
+//Amigos (Conectados) y Peticiones
 Route::post('/enviarPeti', [miControlador::class, 'enviarPeticion']);
 Route::post('/aniadirAmigo', [miControlador::class, 'addAmigo']);
 Route::any('/amigos', [miControlador::class, 'mostrarAmigos']);
+Route::any('/peticiones', [miControlador::class, 'mostrarPeticiones']);
 Route::post('/borrarAmigo', [miControlador::class, 'delAmigo']);
 
 //Crud Administrador
