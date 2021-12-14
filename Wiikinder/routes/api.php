@@ -44,6 +44,13 @@ Route::post('/borrarAmigo', [miControlador::class, 'delAmigo']);
 
 //Crud Administrador
 Route::get('/crudAdmin', [miControlador::class, 'mostrarCrudAdmin']);
+Route::post('/borrar', [miControlador::class, 'borrarUsuario']);
+Route::post('/editar', [miControlador::class, 'editarUsuario']);
+Route::any('/user', [miControlador::class, 'verUser']);
+Route::post('/add', [miControlador::class, 'addUsuario']);
+Route::post('/alta', [miControlador::class, 'darDeAlta']);
+Route::post('/baja', [miControlador::class, 'darDeBaja']);
+
 
 //Perfiles de Usuario
 Route::any('/miPerfil', [miControlador::class, 'verMiPerfil']);

@@ -111,12 +111,12 @@ class miControlador extends Controller
         $password = $val->get('password');
         $persona = Persona::where('correo', '=', $correo)->where('password', '=', $password)->first();
         $conectado = 'si';
-        $r='';
+        $r = '';
 
 
         if ($persona) {
-            foreach (Conjunto::where('correo', '=', $correo)->get() as $r){
-                $rol=$r->id_rol;
+            foreach (Conjunto::where('correo', '=', $correo)->get() as $r) {
+                $rol = $r->id_rol;
             }
 
             session()->put('persona', $persona);
@@ -127,7 +127,7 @@ class miControlador extends Controller
 
             return response()->json([
                 'message' => 'Datos encontrados',
-                    'rol'=> $rol
+                'rol' => $rol
             ], 201);
         } else {
             return response()->json([
@@ -176,8 +176,9 @@ class miControlador extends Controller
     }
 
     /**
-     * Permite añadir a una base de datos las preferencias del nuevo usuario y editar alguna
-     * informacion del usuario nuevo con sus preferencias
+     * Permite añadir a una base de datos las preferencias del nuevo usuario, compararlas con el
+     * resto de usuarios y añadir a esa persona junto a cada una de las personas de la base de datos
+     * con su indice de diferencia.
      */
 
     public function crearFormularioPreferencias(Request $val)
@@ -301,11 +302,41 @@ class miControlador extends Controller
      */
     public function mostrarCrudAdmin()
     {
-        return Persona::all();
+        $p= array();
+        foreach(Persona::all() as $persona){
+            foreach(Conjunto::select('id_rol')->where('correo',$persona->correo)->get() as $r){
+                $dato = [
+                    'correo'=> $persona->correo,
+                    'nombre'=>$persona->nombre,
+                    'nick'=>$persona->nick,
+                    'password'=>$persona->password,
+                    'edad'=>$persona->edad,
+                    'ciudad'=>$persona->ciudad,
+                    'descripcion'=>$persona->descripcion,
+                    'tema'=>$persona->tema,
+                    'foto'=>$persona->foto,
+                    'activo'=>$persona->activo,
+                    'conectado'=>$persona->conectado,
+                    'id_genero'=>$persona->id_genero,
+                    'tieneHijos'=>$persona->tieneHijos,
+                    'tipoRelaccion'=>$persona->tipoRelaccion,
+                    'hijosDeseados'=>$persona->hijosDeseados,
+                    'id_rol' => $r->id_rol,
+                ];
+
+                $p[]=$dato;
+            }
+        }
+        return response()->json($p, 200);
     }
 
 
-
+    /**
+     * Esta funcion me permite mostrar a los usuarios preferentes ordenados a otro usuario
+     *
+     * @param Request $val
+     * @return void
+     */
     public function mostrarPreferencias(Request $val)
     {
         $correo = $val->get('correo');
@@ -325,7 +356,12 @@ class miControlador extends Controller
         return response($personas);
     }
 
-
+    /**
+     * Esta funcion me permite ver mi perfil de usuario
+     *
+     * @param Request $val
+     * @return void
+     */
     public function verMiPerfil(Request $val)
     {
         $correo = $val->get('correo');
@@ -334,6 +370,12 @@ class miControlador extends Controller
     }
 
 
+    /**
+     * Esta funcion me permite modificar mi perfil
+     *
+     * @param Request $val
+     * @return void
+     */
     public function modificarMiPerfil(Request $val)
     {
         $password1 = $val->get('password1');
@@ -348,7 +390,7 @@ class miControlador extends Controller
             $ciudad = $val->get('ciudad');
             $edad = $val->get('edad');
 
-            Persona::where('correo', $correoAntiguo)->update(['correo' => $correo, 'nick' => $nick, 'nombre' => $nombre, 'edad' => $edad, 'descripcion' => $descripcion, 'ciudad' => $ciudad,'password'=>$password1]);
+            Persona::where('correo', $correoAntiguo)->update(['correo' => $correo, 'nick' => $nick, 'nombre' => $nombre, 'edad' => $edad, 'descripcion' => $descripcion, 'ciudad' => $ciudad, 'password' => $password1]);
             return response()->json([
                 'message' => 'Perfil Modificado'
             ], 201);
@@ -360,6 +402,12 @@ class miControlador extends Controller
         }
     }
 
+    /**
+     * Esta funcion me permite borrar mi cuenta
+     *
+     * @param Request $val
+     * @return void
+     */
     public function borrarMiCuenta(Request $val)
     {
         $correo = $val->get('correo');
@@ -384,33 +432,33 @@ class miControlador extends Controller
             return response()->json([
                 'message' => 'Peticion enviada'
             ], 201);
-        }else{
+        } else {
             return response()->json([
                 'message' => 'Este usuario y tu ya sois amigos'
             ], 401);
         }
     }
 
-     /**
-      * Esta funcion te permite añadir a un amigo
-      *
-      * @param Request $val
-      * @return void
-      */
+    /**
+     * Esta funcion te permite añadir a un amigo
+     *
+     * @param Request $val
+     * @return void
+     */
     public function addAmigo(Request $val)
     {
         $correo = $val->get('correo');
         $correoAmigo = $val->get('correoAmigo');
 
 
-            Amigo::create(['correo1' => $correo, 'correo2' => $correoAmigo]);
-            Amigo::create(['correo2' => $correo, 'correo1' => $correoAmigo]);
+        Amigo::create(['correo1' => $correo, 'correo2' => $correoAmigo]);
+        Amigo::create(['correo2' => $correo, 'correo1' => $correoAmigo]);
 
-            Peticion::where('correo_destino', $correo)->delete();
+        Peticion::where('correo_destino', $correo)->delete();
 
-            return response()->json([
-                'message' => 'Amigo añadido'
-            ], 201);
+        return response()->json([
+            'message' => 'Amigo añadido'
+        ], 201);
     }
 
     /**
@@ -449,7 +497,7 @@ class miControlador extends Controller
         $correo = $val->get('correo');
         $informacionCompacta = array();
 
-        $persona = Persona::select('nick', 'nombre', 'edad', 'descripcion', 'id_genero', 'tieneHijos', 'tipoRelaccion', 'hijosDeseados','ciudad')->where('correo', '=', $correo)->get();
+        $persona = Persona::select('nick', 'nombre', 'edad', 'descripcion', 'id_genero', 'tieneHijos', 'tipoRelaccion', 'hijosDeseados', 'ciudad')->where('correo', '=', $correo)->get();
         $informacionCompacta[] = $persona;
         $interesGenero = GustoGenero::select('id')->where('correo', '=', $correo)->get();
         $informacionCompacta[] = $interesGenero;
@@ -465,7 +513,8 @@ class miControlador extends Controller
      * @param Request $val
      * @return void
      */
-    public function delAmigo(Request $val){
+    public function delAmigo(Request $val)
+    {
         $correo = $val->get('correo');
         $correoAmigo = $val->get('correoAmigo');
 
@@ -477,9 +526,147 @@ class miControlador extends Controller
         ], 201);
     }
 
-    public function mostrarPeticiones(Request $val){
-        $correo= $val->get('correo');
-        $peticiones=Peticion::select('correo_origen')->where('correo_destino', $correo)->get();
+    /**
+     * Esta funcion me permite mostrar las peticiones de amistad que le han llegado a un usuario
+     *
+     * @param Request $val
+     * @return void
+     */
+    public function mostrarPeticiones(Request $val)
+    {
+        $correo = $val->get('correo');
+        $peticiones = Peticion::select('correo_origen')->where('correo_destino', $correo)->get();
         return response()->json($peticiones, 200);
     }
+
+    /**
+     * Esta funcion me permite al administrador borrar un usuario
+     *
+     * @param Request $val
+     * @return void
+     */
+    public function borrarUsuario(Request $val)
+    {
+        $correo = $val->get('correo');
+        Persona::where('correo', $correo)->delete();
+
+        return response()->json([
+            'message' => 'Usuario borrado'
+        ], 201);
+    }
+
+    /**
+     * Esta funcion permite dar de alta a una persona
+     *
+     * @param Request $val
+     * @return void
+     */
+    public function darDeAlta(Request $val)
+    {
+        $correo = $val->get('correo');
+        $activo = Persona::select('activo')->where('correo', $correo)->get();
+
+        foreach ($activo as $a) {
+            if ($a->activo == 'no') {
+                Persona::where('correo', $correo)->update(['activo' => 'si']);
+                return response()->json([
+                    'message' => 'Usuario Activo'
+                ], 201);
+            } else {
+                return response()->json([
+                    'message' => 'Este usuario ya esta Activo'
+                ], 401);
+            }
+        }
+    }
+
+    /**
+     * Esta funcion permite dar de baja a una persona
+     *
+     * @param Request $val
+     * @return void
+     */
+    public function darDeBaja(Request $val)
+    {
+        $correo = $val->get('correo');
+        $activo = Persona::select('activo')->where('correo', $correo)->get();
+
+        foreach ($activo as $a) {
+            if ($a->activo == 'si') {
+                Persona::where('correo', $correo)->update(['activo' => 'no']);
+                return response()->json([
+                    'message' => 'Usuario Desactivado'
+                ], 201);
+            } else {
+                return response()->json([
+                    'message' => 'Este usuario ya esta desactivado'
+                ], 401);
+            }
+        }
+    }
+
+    /**
+     * Esta funcion
+     *
+     * @param Request $val
+     * @return void
+     */
+    public function editarUsuario(Request $val)
+    {
+        $password1 = $val->get('password1');
+        $password2 = $val->get('password2');
+
+        if ($password1 == $password2) {
+            $correoAntiguo = $val->get('correoAnt');;
+            $correo = $val->get('correo');
+            $rol=$val->get('id_rol');
+
+            Persona::where('correo', $correoAntiguo)->update(['correo' => $correo, 'password' => $password1]);
+            Conjunto::where('correo',$correoAntiguo)->orWhere('correo',$correo)->update(['id_rol' => $rol]);
+
+            return response()->json([
+                'message' => 'Perfil Modificado'
+            ], 201);
+        } else {
+
+            return response()->json([
+                'message' => 'Las contraseñas son distintas'
+            ], 401);
+        }
+    }
+
+    public function verUser(Request $val)
+    {
+        $correo = $val->get('correo');
+        $p= array();
+
+        foreach(Persona::where('correo', $correo)->get() as $persona){
+            foreach(Conjunto::select('id_rol')->where('correo',$persona->correo)->get() as $r){
+                $dato = [
+                    'correo'=> $persona->correo,
+                    'nombre'=>$persona->nombre,
+                    'nick'=>$persona->nick,
+                    'password'=>$persona->password,
+                    'edad'=>$persona->edad,
+                    'ciudad'=>$persona->ciudad,
+                    'descripcion'=>$persona->descripcion,
+                    'tema'=>$persona->tema,
+                    'foto'=>$persona->foto,
+                    'activo'=>$persona->activo,
+                    'conectado'=>$persona->conectado,
+                    'id_genero'=>$persona->id_genero,
+                    'tieneHijos'=>$persona->tieneHijos,
+                    'tipoRelaccion'=>$persona->tipoRelaccion,
+                    'hijosDeseados'=>$persona->hijosDeseados,
+                    'id_rol' => $r->id_rol,
+                ];
+
+                $p[]=$dato;
+            }
+        }
+        return response()->json($p, 200);
+    }
+
+
+
 }
