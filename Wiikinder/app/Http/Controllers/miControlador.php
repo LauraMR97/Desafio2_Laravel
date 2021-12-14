@@ -426,7 +426,7 @@ class miControlador extends Controller
             //veo si ese amigo en concreto esta conectado
             foreach ($personas as $p) {
                 if ($p->conectado == 'si') {
-                    $amigosConectados[] = $p->correo;
+                    $amigosConectados[] = $p;
                 }
             }
         }
@@ -438,12 +438,25 @@ class miControlador extends Controller
         $correo = $val->get('correo');
         $informacionCompacta = array();
 
-        $persona = Persona::select('nick', 'nombre', 'edad', 'descripcion', 'id_genero', 'tieneHijos', 'tipoRelaccion', 'hijosDeseados')->where('correo', '=', $correo)->get();
+        $persona = Persona::select('nick', 'nombre', 'edad', 'descripcion', 'id_genero', 'tieneHijos', 'tipoRelaccion', 'hijosDeseados','ciudad')->where('correo', '=', $correo)->get();
         $informacionCompacta[] = $persona;
         $interesGenero = GustoGenero::select('id')->where('correo', '=', $correo)->get();
         $informacionCompacta[] = $interesGenero;
-        $preferenciasPersona = PersonaPreferencia::select('id_preferencia', 'intensidad')->where('correo', '=', $correo)->get();
+        $preferenciasPersona = PersonaPreferencia::select('intensidad')->where('correo', '=', $correo)->get();
         $informacionCompacta[] = $preferenciasPersona;
         return response()->json($informacionCompacta, 200);
+    }
+
+
+    public function delAmigo(Request $val){
+        $correo = $val->get('correo');
+        $correoAmigo = $val->get('correoAmigo');
+
+        Amigo::where('correo1', $correo)->where('correo2', $correoAmigo)->delete();
+        Amigo::where('correo1', $correoAmigo)->where('correo2', $correo)->delete();
+
+        return response()->json([
+            'message' => 'Amigo borrado'
+        ], 201);
     }
 }
