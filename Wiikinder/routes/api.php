@@ -23,7 +23,7 @@ Route::post('/registroGenero', [miControlador::class, 'crearGenero']);
 Route::post('/registroPersona', [miControlador::class, 'crearPersona']);
 
 //Login
-Route::post('/login', [miControlador::class, 'login']);
+Route::any('/login', [miControlador::class, 'login']);
 
 //Contraseña Perdida
 Route::post('/passwordOlvidada', [miControlador::class, 'passOlvidada']);
@@ -35,13 +35,23 @@ Route::post('/formularioPreferencias', [miControlador::class, 'crearFormularioPr
 //Mostrar Preferencias
 Route::any('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']);
 
-//Añadir amigos y Amigos conectados
+//Amigos (Conectados) y Peticiones
 Route::post('/enviarPeti', [miControlador::class, 'enviarPeticion']);
+Route::post('/borrarPeti', [miControlador::class, 'borrarPeticion']);
 Route::post('/aniadirAmigo', [miControlador::class, 'addAmigo']);
 Route::any('/amigos', [miControlador::class, 'mostrarAmigos']);
+Route::any('/peticiones', [miControlador::class, 'mostrarPeticiones']);
+Route::post('/borrarAmigo', [miControlador::class, 'delAmigo']);
 
 //Crud Administrador
 Route::get('/crudAdmin', [miControlador::class, 'mostrarCrudAdmin']);
+Route::post('/borrar', [miControlador::class, 'borrarUsuario']);
+Route::post('/editar', [miControlador::class, 'editarUsuario']);
+Route::any('/user', [miControlador::class, 'verUser']);
+Route::post('/add', [miControlador::class, 'addUsuario']);
+Route::post('/alta', [miControlador::class, 'darDeAlta']);
+Route::post('/baja', [miControlador::class, 'darDeBaja']);
+
 
 //Perfiles de Usuario
 Route::any('/miPerfil', [miControlador::class, 'verMiPerfil']);
