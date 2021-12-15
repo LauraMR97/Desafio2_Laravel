@@ -37,6 +37,7 @@ Route::any('/preferenciasUsuario', [miControlador::class, 'mostrarPreferencias']
 
 //Amigos (Conectados) y Peticiones
 Route::post('/enviarPeti', [miControlador::class, 'enviarPeticion']);
+Route::post('/borrarPeti', [miControlador::class, 'borrarPeticion']);
 Route::post('/aniadirAmigo', [miControlador::class, 'addAmigo']);
 Route::any('/amigos', [miControlador::class, 'mostrarAmigos']);
 Route::any('/peticiones', [miControlador::class, 'mostrarPeticiones']);
