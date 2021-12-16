@@ -780,4 +780,25 @@ class miControlador extends Controller
         ], 201);
     }
 
+    /**
+     * Cambiar tema de la persona
+     *
+     * @param Request $val
+     * @return void
+     */
+    public function cambiarTema(Request $val){
+        $correo= $val->get('correo');
+        foreach(Persona::where('correo', '=', $correo)->get() as $p){
+            $tema=$p->tema;
+            if($tema=='claro'){
+                Persona::where('correo', $correo)->update(['tema' => 'oscuro']);
+            }else{
+                Persona::where('correo', $correo)->update(['tema' => 'claro']);
+            }
+        }
+        return response()->json([
+            'message' => 'Tema modificado'
+        ], 201);
+    }
+
 }

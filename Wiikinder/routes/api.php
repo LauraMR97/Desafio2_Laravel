@@ -25,7 +25,7 @@ Route::post('/registroPersona', [miControlador::class, 'crearPersona']);
 //Login
 Route::any('/login', [miControlador::class, 'login']);
 Route::any('/desc', [miControlador::class, 'desconectar']);
-
+Route::post('/tema', [miControlador::class, 'cambiarTema']);
 
 //Contraseña Perdida
 Route::post('/passwordOlvidada', [miControlador::class, 'passOlvidada']);
