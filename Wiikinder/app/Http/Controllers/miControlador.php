@@ -112,18 +112,19 @@ class miControlador extends Controller
         $conectado = 'si';
         $r = '';
         $p='';
+        $activo='';
 
 
         if ($persona) {
             foreach (Conjunto::where('correo', '=', $correo)->get() as $r) {
                 $rol = $r->id_rol;
             }
-
            foreach(Persona::where('correo', '=', $correo)->get() as $p){
                 $tema=$p->tema;
+                $activo = $p->activo;
             }
 
-
+            if($activo=='si'){
             Persona::where('correo', $correo)
                 ->update(['conectado' => $conectado]);
 
@@ -132,6 +133,11 @@ class miControlador extends Controller
                 'rol' => $rol,
                 'tema'=>$tema
             ], 201);
+        }else{
+            return response()->json([
+                'message' => 'Persona no activa'
+            ], 401);
+        }
         } else {
             return response()->json([
                 'message' => 'Datos no encontrados'
@@ -211,7 +217,23 @@ class miControlador extends Controller
         GustoGenero::create(['id' => $interesDeGenero, 'correo' => $personaAfectada]);
         $persona->update(['descripcion' => $descripcion, 'tieneHijos' => $tieneHijos, 'tipoRelaccion' => $tipoRelaccion, 'hijosDeseados' => $quiereHijos]);
 
-
+        self::calcularPreferencias($interesDeGenero,$personaAfectada,$Deportivos,$Artisticos,$Politicos,$tipoRelaccion,$quiereHijos,$tieneHijos);
+        return response()->json($persona, 200);
+    }
+/**
+ * Esta funcion me permite calcular las diferencias entre usuarios y añadirlos a una base de datos
+ *
+ * @param [integer] $interesDeGenero
+ * @param [string] $personaAfectada
+ * @param [integer] $Deportivos
+ * @param [integer] $Artisticos
+ * @param [integer] $Politicos
+ * @param [string] $tipoRelaccion
+ * @param [integer] $quiereHijos
+ * @param [integer] $tieneHijos
+ * @return void
+ */
+    public static function calcularPreferencias($interesDeGenero,$personaAfectada,$Deportivos,$Artisticos,$Politicos,$tipoRelaccion,$quiereHijos,$tieneHijos){
         //Solo pillo a las personas que por genero le molan a la persona que se esta
         //creando excepto la que se esta creando
         $personas = '';
@@ -294,7 +316,6 @@ class miControlador extends Controller
             //Añado todo a la tabla Diferencia
             Diferencia::create(['correo1' => $personaAfectada, 'correo2' => $per->correo, 'diferencia' => $diferencia]);
         }
-        return response()->json($persona, 200);
     }
 
 
@@ -728,87 +749,7 @@ class miControlador extends Controller
         Conjunto::create(['correo' => $correo, 'id_rol' => $rol]);
 
 
-        //Solo pillo a las personas que por genero le molan a la persona que se esta
-        //creando excepto la que se esta creando
-        $personas = '';
-        $diferencia = 0;
-
-        if ($interesDeGenero == 1 || $interesDeGenero == 2) {
-            $personas = Persona::where('id_genero', $interesDeGenero)->get();
-            $personas = $personas->except(['correo' => $correo]);
-        } else {
-            $personas = Persona::all();
-            $personas = $personas->except(['correo' => $correo]);
-        }
-
-        //Recorro a las personas de la BBDD excepto a la que ha rellenado el formulario
-        foreach ($personas as $per) {
-            //Miro sus preferencias y las comparo con la persona que rellena el formulario
-            foreach (PersonaPreferencia::where('correo', '=', $per->correo)->get() as $preferencia) {
-                //Gustos Deporte
-                if ($preferencia->id_preferencia == 1) {
-                    if ($Deportivos > $preferencia->intensidad) {
-                        $diferencia = $diferencia + $Deportivos - $preferencia->intensidad;
-                    } else {
-                        $diferencia = $diferencia + $preferencia->intensidad - $Deportivos;
-                    }
-                }
-
-                //Gustos Arte
-                if ($preferencia->id_preferencia == 2) {
-                    if ($Artisticos > $preferencia->intensidad) {
-                        $diferencia = $diferencia + $Artisticos - $preferencia->intensidad;
-                    } else {
-                        $diferencia = $diferencia + $preferencia->intensidad - $Artisticos;
-                    }
-                }
-
-                //Gustos Politica
-                if ($preferencia->id_preferencia == 3) {
-                    if ($Politicos > $preferencia->intensidad) {
-                        $diferencia = $diferencia + $Politicos - $preferencia->intensidad;
-                    } else {
-                        $diferencia = $diferencia + $preferencia->intensidad - $Politicos;
-                    }
-                }
-            }
-
-            //Tipo de relaccion. vale x100
-
-            if ($tipoRelaccion == $per->tipoRelaccion) {
-                $diferencia = $diferencia - 100;
-            } else {
-                $diferencia = $diferencia + 100;
-            }
-
-
-            //Hijos
-            //Si la persona registrandose tiene hijos y la otra persona los quiere -100
-            //Si es al reves -100
-            if ($tieneHijos == 1 && $per->hijosDeseados > 0 || $per->tieneHijos == 1 && $quiereHijos) {
-                $diferencia = $diferencia - 100;
-            } else {
-                //SI la persona registrandose no quiere hijos y la otra tampoco -100
-                if ($quiereHijos == 0 && $per->hijosDeseados == 0) {
-                    $diferencia = $diferencia - 100;
-                } else {
-                    //Si la persona registrandose quiere hijos y la otra tambien
-                    if ($quiereHijos == 1 && $per->hijosDeseados > 0) {
-                        $diferencia = $diferencia - 100;
-                    } else {
-                        //Si la persona registrada tiene hijos pero no quiere mas y la otra persona no tiene pero si quiere o viceversa -100
-                        if ($tieneHijos == 1 && $quiereHijos == 0 && $per->tieneHijos == 0 && $per->hijosDeseados > 0 || $tieneHijos == 0 && $quiereHijos > 0 && $per->tieneHijos == 1 && $per->hijosDeseados == 0) {
-                            $diferencia = $diferencia - 100;
-                        } else {
-                            $diferencia = $diferencia + 100;
-                        }
-                    }
-                }
-            }
-            //Genero-> Como yo ya filtre por gusto de genero mas arriba, me aseguro de que si o si se gustan por lo tanto, no lo voy a contabilizar
-            //Añado todo a la tabla Diferencia
-            Diferencia::create(['correo1' => $correo, 'correo2' => $per->correo, 'diferencia' => $diferencia]);
-        }
+        self::calcularPreferencias($interesDeGenero,$correo,$Deportivos,$Artisticos,$Politicos,$tipoRelaccion,$quiereHijos,$tieneHijos);
 
             return response()->json([
                 'message' => 'Usuario Añadido'
@@ -821,6 +762,22 @@ class miControlador extends Controller
         }
 
 
+    }
+
+    /**
+     * Esta funcion sirve para desconectar un usuario
+     *
+     * @param Request $val
+     * @return void
+     */
+    public function desconectar(Request $val){
+
+        $correo= $val->get('correo');
+        Persona::where('correo', $correo)->update(['conectado' => 'no']);
+
+        return response()->json([
+            'message' => 'Usuario Desconectado'
+        ], 201);
     }
 
 }
